@@ -1,0 +1,80 @@
+/* General container styling */
+form {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Headline styling */
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* General input styling */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* Label styling */
+label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Button styling */
+button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: rgba(255, 166, 0, 0.9);
+}
+
+/* Error and loading messages */
+p {
+  text-align: center;
+}
+
+p[style*="color: red"] {
+  color: red;
+  font-weight: bold;
+}
+
+p[style*="Loading"] {
+  color: #333;
+  font-style: italic;
+}
+
+/* Debugging output styling */
+p {
+  color: #333;
+}
+
+p:not([style*="color: red"]) {
+  margin-top: 10px;
+  font-size: 14px;
+}

@@ -1,0 +1,74 @@
+/* General container styling */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f3f4f6;
+}
+
+/* Form container styling */
+form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 350px;
+}
+
+/* Headline styling */
+h1, h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+/* Input field styling */
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* Label styling */
+label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Button styling */
+button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: rgba(255, 166, 0, 0.888);
+}
+
+/* Success message styling */
+h1 {
+  color: #28a745;
+}
+
+/* Error and general messages */
+p {
+  text-align: center;
+  color: red;
+  font-weight: bold;
+}
