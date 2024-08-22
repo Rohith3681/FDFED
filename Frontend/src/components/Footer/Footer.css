@@ -1,0 +1,83 @@
+/* Footer Container */
+.footer {
+  background-color: #333;
+  color: white;
+  padding: 40px 20px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Footer Section Styles */
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footer-section h4 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #f9a825; /* Golden accent color */
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 10px;
+}
+
+.footer-section ul li a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-section ul li a:hover {
+  color: #f9a825; /* Golden accent color on hover */
+}
+
+/* Contact Section */
+.footer-section.contact p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.footer-section.contact i {
+  margin-right: 10px;
+}
+
+/* Social Media Section */
+.footer-section.social .social-icons a {
+  color: white;
+  margin-right: 15px;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+
+.footer-section.social .social-icons a:hover {
+  color: #f9a825; /* Golden accent color on hover */
+}
+
+/* Footer Bottom */
+.footer-bottom {
+  text-align: center;
+  margin-top: 40px;
+  border-top: 1px solid #444;
+  padding-top: 20px;
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-size: 14px;
+  color: #ccc;
+}

@@ -14,11 +14,22 @@ nav {
   color: black;
   padding: 0 10px; /* Add some padding for better appearance */
   border-bottom: 1px solid #ddd; /* Optional: Add a bottom border for better separation */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
+  transition: background-color 0.4s ease; /* Smooth transition for background color change */
+}
+
+nav:hover {
+  background-color: #f4f4f4; /* Slightly darken the background when hovering over the nav */
 }
 
 /* Style the logo container */
 nav .logo {
   flex: 1; /* Allow logo container to take available space on the left */
+  transition: transform 0.3s ease;
+}
+
+nav .logo:hover {
+  transform: scale(1.05); /* Slightly enlarge the logo on hover */
 }
 
 /* Style the search bar container */
@@ -28,12 +39,17 @@ nav .search-bar {
   justify-content: center; /* Center the search bar */
 }
 
-/* Style the search input */
 nav .search-bar input {
   width: 100%; /* Make search input fill its container */
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+nav .search-bar input:focus {
+  border-color: orange; /* Highlight border when input is focused */
+  box-shadow: 0 0 8px rgba(255, 165, 0, 0.6); /* Add glowing effect when focused */
 }
 
 /* Style for the navigation links container */
@@ -57,15 +73,20 @@ nav li a {
   text-decoration: none; /* Remove underline from links */
   padding: 10px 15px; /* Padding for spacing */
   border-radius: 20px; /* Rounded corners for better appearance */
-  transition: background-color 0.3s, box-shadow 0.3s, color 0.3s; /* Smooth transition for hover effect */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, transform 0.3s ease; /* Smooth transitions for multiple effects */
   display: block; /* Ensure links fill their container and align properly */
 }
 
-/* Hover effect for navigation links */
 nav li a:hover {
   background-color: orange; /* Change background color to orange on hover */
   color: white; /* Change text color to white on hover */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow for a 3D effect */
+  transform: scale(1.05); /* Slightly scale the element for a more interactive feel */
+}
+
+nav li a:active {
+  transform: scale(0.95); /* Slightly shrink the link when clicked */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce the shadow on click */
 }
 
 /* Active link style */
@@ -74,4 +95,14 @@ nav .nav-links .orange {
   padding: 10px 15px; /* Ensure consistent padding */
   color: white; /* Ensure the active link text is white */
   border-radius: 20px;
+}
+
+/* Add a subtle drop shadow to the nav on scroll */
+nav.scrolled {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Add animation for smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
 }
