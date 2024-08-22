@@ -69,7 +69,7 @@ nav li {
 
 /* Style for the links */
 nav li a {
-  color: black;
+  color: black; /* Set text color to black */
   text-decoration: none; /* Remove underline from links */
   padding: 10px 15px; /* Padding for spacing */
   border-radius: 20px; /* Rounded corners for better appearance */
@@ -91,7 +91,8 @@ nav li a:active {
 
 /* Active link style */
 nav .nav-links .orange {
-  background-color: orange;
+  
+  background-color: rgb(135, 198, 250); /* Light blue background for active link */
   padding: 10px 15px; /* Ensure consistent padding */
   color: white; /* Ensure the active link text is white */
   border-radius: 20px;

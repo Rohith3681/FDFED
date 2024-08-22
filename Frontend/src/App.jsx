@@ -4,7 +4,7 @@ import { About } from './pages/About';
 import { Login } from './components/Login/Login';
 import { Register } from './components/Register/Register';
 import { Navbar } from './components/Navbar/Navbar';
-import { Footer } from './components/Footer/Footer'; // New Footer import
+import { Footer } from './components/Footer/Footer'; 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
         <>
           <Navbar />
           <Home />
-          <Footer /> {/* Footer added */}
+          <Footer /> 
         </>
       ),
     },
@@ -25,7 +25,7 @@ function App() {
         <>
           <Navbar />
           <Login />
-          <Footer /> {/* Footer added */}
+          <Footer /> 
         </>
       ),
     },
@@ -35,7 +35,7 @@ function App() {
         <>
           <Navbar />
           <Register />
-          <Footer /> {/* Footer added */}
+          <Footer /> 
         </>
       ),
     },
@@ -45,7 +45,7 @@ function App() {
         <>
           <Navbar />
           <About />
-          <Footer /> {/* Footer added */}
+          <Footer /> 
         </>
       ),
     },

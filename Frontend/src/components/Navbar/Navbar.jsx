@@ -15,8 +15,8 @@ export const Navbar = () => {
         <div className="nav-links">
           <NavLink className={(e) => e.isActive ? "orange" : ""} to="/"><li>Home</li></NavLink>
           <NavLink className={(e) => e.isActive ? "orange" : ""} to="/about"><li>About</li></NavLink>
-          <NavLink className={(e) => e.isActive ? "orange" : ""} to="/register"><li>Register</li></NavLink>
           <NavLink className={(e) => e.isActive ? "orange" : ""} to="/login"><li>Login</li></NavLink>
+          <NavLink className={(e) => e.isActive ? "orange" : ""} to="/register"><li>Register</li></NavLink>
         </div>
       </nav>
     </div>
