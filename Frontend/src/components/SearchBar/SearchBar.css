@@ -5,7 +5,7 @@
     align-items: center;
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 30px auto; /* Increased margin to push the search bar down */
     padding: 10px 20px;
     background-color: #f5f5f5;
     border-radius: 5px;

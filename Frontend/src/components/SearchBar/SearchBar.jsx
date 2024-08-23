@@ -27,7 +27,9 @@ export const SearchBar = () => {
         </div>
       </div>
       <div className="input-wrapper">
-        <span className="icon"><i className="ri-group-line"></i></span>
+        <span className="icon">
+        <i class="ri-group-line"></i>
+        </span>
         <div className="input-content">
           <label className="input-label">Max People</label>
           <input 
