@@ -12,6 +12,8 @@ import tour7 from "../../assets/images/tour/cancun.png";
 import tour8 from "../../assets/images/tour/nah-trang.png";
 import tour9 from "../../assets/images/tour/phuket.png";
 
+import { SearchBar } from "../../components/SearchBar/SearchBar";
+
 const CustomPrevArrow = (props) => {
   const { className, onClick } = props;
   return <button className={className} onClick={onClick}>←</button>;
@@ -158,6 +160,7 @@ const Home = () => {
           </Row>
         </Container>
       </section>
+      <SearchBar />
     </>
   );
 };
