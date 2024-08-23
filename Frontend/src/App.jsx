@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home } from './pages/Home/Home';
+import Home from './pages/Home/Home';
 import { About } from './pages/About';
 import { Login } from './components/Login/Login';
 import { Register } from './components/Register/Register';

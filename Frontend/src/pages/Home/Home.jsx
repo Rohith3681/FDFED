@@ -5,7 +5,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 import "./home.css";
-
 import tour4 from "../../assets/images/tour/Tokyo.png";
 import tour5 from "../../assets/images/tour/bali-1.png";
 import tour6 from "../../assets/images/tour/bangkok.png";
@@ -13,15 +12,25 @@ import tour7 from "../../assets/images/tour/cancun.png";
 import tour8 from "../../assets/images/tour/nah-trang.png";
 import tour9 from "../../assets/images/tour/phuket.png";
 
+const CustomPrevArrow = (props) => {
+  const { className, onClick } = props;
+  return <button className={className} onClick={onClick}>←</button>;
+};
+
+const CustomNextArrow = (props) => {
+  const { className, onClick } = props;
+  return <button className={className} onClick={onClick}>→</button>;
+};
+
 const Home = () => {
-  var settings = {
+  const settings = {
     dots: true,
     infinite: true,
     autoplay: true,
     slidesToShow: 4,
     slidesToScroll: 1,
-    prevArrow: <button className="slick-prev">←</button>,
-    nextArrow: <button className="slick-next">→</button>,
+    prevArrow: <CustomPrevArrow />,
+    nextArrow: <CustomNextArrow />,
 
     responsive: [
       {
@@ -47,9 +56,9 @@ const Home = () => {
         settings: {
           slidesToShow: 2,
           slidesToScroll: 2,
+          autoplay: true,
           prevArrow: false,
           nextArrow: false,
-          autoplay: true,
         },
       },
       {
