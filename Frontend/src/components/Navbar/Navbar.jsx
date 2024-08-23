@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from "react-router-dom";
+import Logo from '../../assets/WhatsApp Image 2024-08-22 at 21.52.32_dc9cf41a.jpg';
 import './Navbar.css';
 
 export const Navbar = () => {
@@ -7,7 +8,7 @@ export const Navbar = () => {
     <div>
       <nav>
         <div className="logo">
-          <img src="path-to-your-logo.png" alt="Logo" />
+          <img src={Logo} alt="Logo" />
         </div>
         <div className="search-bar">
           <input type="text" placeholder="Search..." />
@@ -21,4 +22,4 @@ export const Navbar = () => {
       </nav>
     </div>
   );
-}
+};

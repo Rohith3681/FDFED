@@ -24,19 +24,33 @@ nav:hover {
 
 /* Style the logo container */
 nav .logo {
-  flex: 1; /* Allow logo container to take available space on the left */
+  flex-grow: 0; /* Do not allow the logo to grow */
+  flex-shrink: 0; /* Do not allow the logo to shrink */
+  width: 120px; /* Fixed width for logo container */
+  height: 50px; /* Fixed height for logo container */
+  display: flex;
+  align-items: center;
+}
+
+nav .logo img {
+  width: 100%; /* Ensure the image fills the container's width */
+  height: 100%; /* Ensure the image fills the container's height */
+  object-fit: contain; /* Ensure the image maintains its aspect ratio within the container */
+  border-radius: 6px; /* Slight border radius to give it a rectangular shape with rounded edges */
   transition: transform 0.3s ease;
 }
 
-nav .logo:hover {
+nav .logo:hover img {
   transform: scale(1.05); /* Slightly enlarge the logo on hover */
 }
 
 /* Style the search bar container */
 nav .search-bar {
-  flex: 2; /* Allow search bar container to take more space in the center */
+  flex-grow: 1; /* Allow the search bar to grow and take up the central space */
   display: flex;
   justify-content: center; /* Center the search bar */
+  max-width: 400px; /* Set a max width for the search bar */
+  padding-top: 4px; /* Add padding to push the search bar down slightly */
 }
 
 nav .search-bar input {
@@ -54,7 +68,8 @@ nav .search-bar input:focus {
 
 /* Style for the navigation links container */
 nav .nav-links {
-  flex: 1; /* Allow navigation links to take available space on the right */
+  flex-grow: 0; /* Do not allow the navigation links to grow */
+  flex-shrink: 0; /* Do not allow the navigation links to shrink */
   display: flex; /* Arrange navigation links in a row */
   justify-content: flex-end; /* Align links to the end (right) */
   gap: 20px; /* Space between navigation items */
@@ -91,7 +106,6 @@ nav li a:active {
 
 /* Active link style */
 nav .nav-links .orange {
-  
   background-color: rgb(135, 198, 250); /* Light blue background for active link */
   padding: 10px 15px; /* Ensure consistent padding */
   color: white; /* Ensure the active link text is white */

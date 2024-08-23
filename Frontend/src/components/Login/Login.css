@@ -43,7 +43,6 @@ label {
   font-weight: bold;
   color: #555;
 }
-
 /* Button styling */
 button[type="submit"] {
   width: 100%;
@@ -58,7 +57,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-  background-color: rgba(255, 166, 0, 0.888);
+  background-color: lightskyblue;
 }
 
 /* Success message styling */
