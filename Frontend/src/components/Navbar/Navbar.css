@@ -52,9 +52,10 @@ nav .search-bar {
 nav .search-bar input {
   width: 100%; /* Make search input fill its container */
   padding: 8px;
- 
+  border: 1px solid #ccc;
   border-radius: 10px;
-  
+  transition: border-color 0.3s ease;
+  box-shadow: none; /* Remove the shadow effect */
 }
 
 nav .search-bar input:focus {
