@@ -4,7 +4,8 @@ import { About } from './pages/About';
 import { Login } from './components/Login/Login';
 import { Register } from './components/Register/Register';
 import { Navbar } from './components/Navbar/Navbar';
-import { Footer } from './components/Footer/Footer'; 
+import { Footer } from './components/Footer/Footer';
+import Booking from './components/Booking/Booking'; // Import the Booking component
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 function App() {
@@ -45,6 +46,16 @@ function App() {
         <>
           <Navbar />
           <About />
+          <Footer /> 
+        </>
+      ),
+    },
+    {
+      path: "/booking/:id",
+      element: (
+        <>
+          <Navbar />
+          <Booking />
           <Footer /> 
         </>
       ),

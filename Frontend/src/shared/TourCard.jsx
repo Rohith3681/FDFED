@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardBody } from 'reactstrap';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import "../App.css";
 import styles from "./TourCard.module.css";
 import classNames from 'classnames';
@@ -9,11 +9,13 @@ const TourCard = ({ tour }) => {
     const { id, title, city, photo, price, featured, reviews } = tour;
 
     const totalRating = reviews?.reduce((acc, item) => acc + item.rating, 0);
+    const avgRating = reviews?.length === 0 ? "" : (totalRating / reviews.length).toFixed(1);
 
-    const avgRating =
-        reviews?.length === 0
-            ? ""
-            : (totalRating / reviews.length).toFixed(1);
+    const navigate = useNavigate();
+
+    const handleNavigation = () => {
+        navigate(`/booking/${id}`, { state: { tour } });
+    };
 
     return (
         <div className={styles.tour_card}>
@@ -48,8 +50,11 @@ const TourCard = ({ tour }) => {
                         </span>
                     </div>
 
-                    <h5 className={styles.tour_title}>
-                        <Link to={`/tours/${id}`}>{title}</Link>
+                    <h5 
+                        className={styles.tour_title} 
+                        onClick={handleNavigation} // Handle click for title
+                    >
+                        {title}
                     </h5>
 
                     <div className={classNames(
@@ -60,11 +65,12 @@ const TourCard = ({ tour }) => {
                         styles['mt-3']
                     )}>
                         <h5>${price}<span>/per person</span></h5>
-                        <Link to={`/tours/${id}`}>
-                            <button className={classNames(styles.btn, styles.booking_btn)}>
-                                Book Now
-                            </button>
-                        </Link>
+                        <button 
+                            className={classNames(styles.btn, styles.booking_btn)}
+                            onClick={handleNavigation} // Handle click for button
+                        >
+                            Book Now
+                        </button>
                     </div>
                 </CardBody>
             </Card>
