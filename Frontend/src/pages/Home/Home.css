@@ -42,6 +42,8 @@
 /* Home Section Styles */
 .img-box {
   position: relative;
+  transition: transform 0.3s ease;
+  cursor: pointer; /* Smooth transition for hover effect */
 }
 
 .destination-title {
@@ -54,6 +56,10 @@
   font-size: 1rem;
   margin-top: 0.5rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.img-box:hover {
+  transform: scale(1.05); /* Slightly enlarge the image on hover */
 }
 
 /* Parallax Section Styles */
