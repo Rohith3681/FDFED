@@ -3,6 +3,7 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Parallax } from "react-parallax";
 
 import "./home.css";
 import tour4 from "../../assets/images/tour/Tokyo.png";
@@ -11,9 +12,11 @@ import tour6 from "../../assets/images/tour/bangkok.png";
 import tour7 from "../../assets/images/tour/cancun.png";
 import tour8 from "../../assets/images/tour/nah-trang.png";
 import tour9 from "../../assets/images/tour/phuket.png";
+import backgroundImage from "./g7.jpg"; // Import the background image
 
 import { SearchBar } from "../../components/SearchBar/SearchBar";
 
+// Custom arrow components
 const CustomPrevArrow = (props) => {
   const { className, onClick } = props;
   return <button className={className} onClick={onClick}>←</button>;
@@ -33,7 +36,6 @@ const Home = () => {
     slidesToScroll: 1,
     prevArrow: <CustomPrevArrow />,
     nextArrow: <CustomNextArrow />,
-
     responsive: [
       {
         breakpoint: 1024,
@@ -137,7 +139,6 @@ const Home = () => {
               </div>
             </Col>
           </Row>
-
           <Row>
             <Col md="12">
               <Slider {...settings}>
@@ -161,6 +162,24 @@ const Home = () => {
         </Container>
       </section>
       <SearchBar />
+      <Parallax
+        strength={500}
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundAttachment: 'fixed',
+        }}
+      >
+        <section className="parallax">
+          <div className="parallax-content">
+            <div className="parallax-text">
+              <p>Discover the world's most exciting destinations</p>
+              <button className="explore-button">Explore Now</button>
+            </div>
+            <h1>Your Next Travel Adventure Awaits</h1>
+          </div>
+        </section>
+      </Parallax>
     </>
   );
 };

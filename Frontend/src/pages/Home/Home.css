@@ -1,3 +1,4 @@
+/* Hero Section Styles */
 .hero_subtitle img {
   width: 2.3rem;
   height: 2.3rem;
@@ -36,4 +37,73 @@
 
 .hero_img-box {
   padding-top: 2rem;
+}
+
+/* Home Section Styles */
+.img-box {
+  position: relative;
+}
+
+.destination-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.tours {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Parallax Section Styles */
+.parallax {
+  position: relative;
+  height: 60vh; /* Adjust the height as needed */
+  background-image: url('../../assets/images/parallax-image.jpg'); /* Path to your image */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Ensures the parallax effect */
+  overflow: hidden;
+}
+
+.parallax-content {
+  position: absolute;
+  top: 50%; /* Center content vertically */
+  left: 50%; /* Center content horizontally */
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  max-width: 80%; /* Optional: limit the width of the text container */
+}
+
+.parallax-text {
+  margin-bottom: 30px;
+}
+
+.parallax-text p {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #f0f0f0;
+}
+
+.explore-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.explore-button:hover {
+  background-color: #0056b3;
+}
+
+.parallax h1 {
+  font-size: 2.5rem;
+  margin-top: 20px;
+  color: white; /* Ensure the heading text is white */
 }
