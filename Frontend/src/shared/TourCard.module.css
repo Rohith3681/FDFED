@@ -1,0 +1,108 @@
+.tour_img img {
+    width: 100%;
+    border-radius: 5px 5px 0 0;
+}
+
+.card {
+    border: none !important;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
+}
+
+.tour_img {
+    position: relative;
+}
+
+
+/* Individual card styling */
+
+.tour_card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    /* Full width of the grid cell */
+    height: auto;
+    /* Adjust height if needed */
+}
+
+.tour_img span {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: max-content;
+    z-index: 10;
+    background: #ff7e01;
+    /* Added # for color code */
+    color: #fff;
+    padding: 0.3rem 0.5rem;
+    border-radius: 3px 0 0 0;
+}
+
+.card_top span i {
+    color: #faa935;
+}
+
+.d-flex {
+    display: flex;
+    flex-direction: row;
+}
+
+.tour_rating {
+    font-size: 0.9rem;
+    color: #6e7074;
+}
+
+.tour_location {
+    color: #0b2727;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.tour_rating i,
+.tour_location i {
+    font-size: 1rem;
+}
+
+.tour_title {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.tour_title a {
+    text-decoration: none;
+    color: #0b2727;
+    transition: 0.3s;
+}
+
+.tour_title a:hover {
+    color: #faa935;
+}
+
+.card_bottom h5 {
+    color: #faa935;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.card_bottom h5 span {
+    font-weight: 500;
+    color: #6e7074;
+    font-size: 0.8rem;
+}
+
+.booking_btn {
+    background: #faa935;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem !important;
+}
+
+.booking_btn a {
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.booking_btn a:hover {
+    color: #fff;
+}

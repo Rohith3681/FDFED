@@ -1,0 +1,10 @@
+/* FeaturedTourList.module.css */
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 columns for large screens */
+    grid-template-rows: repeat(2, auto);
+    gap: 20px;
+    /* Space between cards */
+}

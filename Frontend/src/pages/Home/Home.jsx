@@ -15,7 +15,7 @@ import tour9 from "../../assets/images/tour/phuket.png";
 import backgroundImage from "./g7.jpg"; // Import the background image
 
 import { SearchBar } from "../../components/SearchBar/SearchBar";
-
+import FeaturedTourList from "../../components/Featured-tours/FeaturedTourList";
 // Custom arrow components
 const CustomPrevArrow = (props) => {
   const { className, onClick } = props;
@@ -180,6 +180,9 @@ const Home = () => {
           </div>
         </section>
       </Parallax>
+
+      
+      <FeaturedTourList />
     </>
   );
 };
