@@ -1,108 +1,186 @@
-.tour_img img {
-    width: 100%;
-    border-radius: 5px 5px 0 0;
+@import url("https://fonts.googleapis.com/css2?family=Island+Moments&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+:root {
+    --primary-color: #ff7e01;
+    --secondary-color: #faa935;
+    --heading-color: #0b2727;
+    --text-color: #6e7074;
+    --font-name: "Montserrat", sans-serif;
+    --subtitle-font-name: "Island Moments", cursive;
 }
 
-.card {
-    border: none !important;
-    box-shadow: rgba(0, 0, 0, 0.2) 0px 18px 50px -10px;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.tour_img {
-    position: relative;
+body {
+    font-family: var(--font-name);
+    margin: 0px 2px 0px 2px;
 }
 
 
-/* Individual card styling */
+/* Tour Card Styles */
 
 .tour_card {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    /* Full width of the grid cell */
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    /* Removed padding to ensure no gap */
+}
+
+.tour_img {
+    width: 100%;
+    /* Ensure the image fills the entire width of the card */
+    margin: 0;
+    /* Removed margin to avoid any gap */
+    position: relative;
+    border-radius: 8px 8px 0 0;
+    /* Rounded corners for the top of the card */
+    overflow: hidden;
+}
+
+.tour_img img {
+    width: 100%;
     height: auto;
-    /* Adjust height if needed */
+    display: block;
+    /* Removed border-radius here to ensure the image covers the full width */
 }
 
 .tour_img span {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: max-content;
     z-index: 10;
-    background: #ff7e01;
-    /* Added # for color code */
+    background: var(--primary-color);
     color: #fff;
     padding: 0.3rem 0.5rem;
     border-radius: 3px 0 0 0;
 }
 
-.card_top span i {
-    color: #faa935;
+.card_top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 16px;
+    /* Add padding for content, not for the image */
 }
 
-.d-flex {
+.tour_location {
+    color: var(--heading-color);
+    font-weight: 500;
+    font-size: 0.9rem;
     display: flex;
-    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .tour_rating {
     font-size: 0.9rem;
-    color: #6e7074;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
-.tour_location {
-    color: #0b2727;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-.tour_rating i,
-.tour_location i {
-    font-size: 1rem;
+.tour_rating i {
+    color: var(--secondary-color);
 }
 
 .tour_title {
     margin-top: 1rem;
     font-size: 1.1rem;
     cursor: pointer;
+    color: var(--heading-color);
+    transition: color 0.3s;
+    text-align: center;
 }
 
-.tour_title a {
-    text-decoration: none;
-    color: #0b2727;
-    transition: 0.3s;
+.tour_title:hover {
+    color: var(--secondary-color);
 }
 
-.tour_title a:hover {
-    color: #faa935;
+.card_bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0 16px;
+    /* Add padding for content, not for the image */
 }
 
 .card_bottom h5 {
-    color: #faa935;
+    color: var(--secondary-color);
     font-size: 1.1rem;
     font-weight: 700;
 }
 
 .card_bottom h5 span {
     font-weight: 500;
-    color: #6e7074;
+    color: var(--text-color);
     font-size: 0.8rem;
 }
 
 .booking_btn {
-    background: #faa935;
+    background: var(--secondary-color);
     cursor: pointer;
-    padding: 0.2rem 0.5rem !important;
+    padding: 0.2rem 0.5rem;
+    margin: 1rem 0.5rem;
+    border: none;
+    color: #fff;
+    font-size: 0.9rem;
+    border-radius: 4px;
 }
 
-.booking_btn a {
-    text-decoration: none;
-    font-size: 0.9rem;
+.booking_btn:hover {
+    background: var(--primary-color);
     color: #fff;
 }
 
-.booking_btn a:hover {
+
+/* Utility Classes */
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.gap-1 {
+    gap: 0.25rem;
+}
+
+.btn {
+    background: var(--secondary-color);
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border: none;
+    color: #fff;
+    font-size: 0.9rem;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background: var(--primary-color);
     color: #fff;
 }

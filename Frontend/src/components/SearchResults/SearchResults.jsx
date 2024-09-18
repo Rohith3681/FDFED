@@ -23,7 +23,7 @@ const SearchResults = () => {
             </Col>
           ))
         ) : (
-          <p>No tours found for the location "{location}".</p>
+          <p className="no-results">No tours found for the location "{location}".</p>
         )}
       </Row>
     </div>

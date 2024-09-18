@@ -1,73 +1,248 @@
+/* Reset margin and padding for body and html */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+
 /* General container styling */
+
 .login-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0 20px;
+    position: relative;
+    overflow: hidden;
+    background-color: #f3f4f6;
+    z-index: 1;
+    /* Ensure this is above the pseudo-element */
 }
 
-/* Form container styling */
-form {
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 350px;
+.login-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://unsplash.it/1366/768?image=568');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3;
+    /* Adjust opacity as needed */
+    z-index: -1;
+    /* Ensure the background stays behind content */
+    filter: brightness(0.7);
+    /* Optionally add more effects */
 }
 
-/* Headline styling */
-h1, h2 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 20px;
-  font-size: 24px;
+
+/* Login box */
+
+.login-box {
+    display: flex;
+    flex-direction: row;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 750px;
+    /* Fixed width */
+    height: 500px;
+    opacity: .85;
+    /* Fixed height */
 }
+
+
+/* Form and video containers */
+
+.form-container,
+.video-container {
+    height: 100%;
+    /* Full height for both containers */
+}
+
+
+/* Form container */
+
+.form-container {
+    width: 50%;
+    /* Half width for form */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    margin: 0;
+    /* Ensure no margin */
+}
+
+
+/* Video container */
+
+.video-container {
+    position: relative;
+    width: 50%;
+    /* Half width for video */
+    height: 100%;
+    /* Full height to match form container */
+    overflow: hidden;
+    /* Ensure no overflow */
+}
+
+
+/* Swap positions: Video on right and form on left */
+
+.login-box {
+    flex-direction: row-reverse;
+}
+
+
+/* Adjust styling for video and text overlay */
+
+.login-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Ensures the video scales properly */
+    opacity: 0.8;
+    /* Slightly increased visibility */
+}
+
+
+/* Text overlay container */
+
+.video-text-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    /* Changed text color to white */
+    background-color: rgba(0, 0, 0, 0.2);
+    /* Lighter overlay */
+    text-align: center;
+    padding: 20px;
+}
+
+
+/* Styling for Welcome Back text */
+
+.video-text-overlay h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.video-text-overlay p {
+    font-size: 1rem;
+    margin: 0;
+    color: white;
+}
+
 
 /* Input field styling */
+
 input[type="text"],
 input[type="password"] {
-  width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  box-sizing: border-box;
+    width: 300px;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-right: 0px;
+    margin-left: 0px;
+    border: 1px solid #f0f0f0;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
-/* Label styling */
-label {
-  font-size: 14px;
-  font-weight: bold;
-  color: #555;
+
+/* Placeholder styling */
+
+input::placeholder {
+    color: #aaa;
+    /* Light gray color for placeholders */
 }
+
+
 /* Button styling */
-button[type="submit"] {
-  width: 100%;
-  padding: 12px;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+
+#text {
+    color: #f9a825;
+    margin-top: 0%;
+    margin-bottom: 50px;
 }
 
-button[type="submit"]:hover {
-  background-color: lightskyblue;
+#signin {
+    margin-top: 5px;
 }
 
-/* Success message styling */
-h1 {
-  color: #28a745;
+.submit-btn {
+    width: 50%;
+    padding: 10px;
+    background-color: #f9a825;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
-/* Error and general messages */
-p {
-  text-align: center;
-  color: red;
-  font-weight: bold;
+.submit-btn:hover {
+    transform: scale(1.1);
+}
+
+
+/* Employee Dashboard Button */
+
+.dashboard-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.dashboard-btn:hover {
+    background-color: #218838;
+}
+
+
+/* Responsive styling */
+
+@media (max-width: 768px) {
+    .login-box {
+        flex-direction: column;
+        width: 90%;
+        height: auto;
+        /* Let the height adapt on smaller screens */
+    }
+    .video-container {
+        width: 100%;
+        height: 200px;
+        /* Set height for smaller screens */
+    }
+    .form-container {
+        width: 100%;
+    }
 }

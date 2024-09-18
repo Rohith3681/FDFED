@@ -1,82 +1,111 @@
-import React from 'react'
-import { useState } from 'react';
-import './Login.css'
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../../features/auth/authSlice';
+import './Login.css';
+import hello from '../../assets/images/hero-video.mp4';
+
 export const Login = () => {
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [loggedin, setLoggedin] = useState(false)
-  const [employee, setEmployee] = useState(false)
+    const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const dispatch = useDispatch();
 
-  const handleSubmit = async(event) => {
-      event.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
-      const check = {name, password};
+        const credentials = { name, password };
 
-      try{
-          const res = await fetch('http://localhost:8000/login', {
-          method: 'POST',
-          headers: {
-          'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(check),
-          });
-          console.log(res)
-          if(res.ok) {
-            const data = await res.json();
-            console.log('Login successful');
-            setName('');
-            setPassword('');
-            setLoggedin(true);
-            if(data.role == 8180){
-              setEmployee(true);
-            }
-          }else{
+        try {
+            const res = await fetch('http://localhost:8000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials),
+                credentials: 'include', // Include cookies with the request
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log('Login successful');
+                setName('');
+                setPassword('');
+                dispatch(login({ role: data.role, username: name }));
+                setError('');
+
+                // Check if the session cookie is present
+                const cookies = document.cookie;
+                console.log('Cookies:', cookies); // Log cookies to verify session cookie
+            } else if (res.status === 401) {
+                setError('Invalid credentials. Please try again.');
+            } else {
                 const errorMessage = await res.text();
-                console.error('Error during login:', res.status, errorMessage);
-          }
-
-        }catch(error){
-            console.log(error);
+                setError(`Login failed: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            setError('An error occurred during login. Please try again.');
         }
     };
-  return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        {loggedin? ( <h1>Login Successful !!!</h1> ) :(<h1>Please Login</h1>) }
-        {employee? ( <button type="button">Employee Dashboard</button>) : (<div>Hello</div>)}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-80"
-      >
-        <h2 className="text-2xl mb-4 font-bold text-center">Login</h2>
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700">name</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full mt-1 p-2 border border-gray-300 rounded"
-            required
-          />
+
+    return (
+        <div className="login-container">
+            <div className="login-box">
+                <form onSubmit={handleSubmit} className="form-container">
+                    <h2 className="text-2xl mb-4 font-bold text-center" id='text'>Sign in</h2>
+
+                    <div aria-live="assertive" className="error-message">
+                        {error && <p className="text-red-500">{error}</p>}
+                    </div>
+
+                    <div className="mb-4">
+                        <label htmlFor="name" className="block text-gray-700"></label>
+                        <input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Name"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded"
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label htmlFor="password" className="block text-gray-700"></label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Password"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded"
+                            required
+                        />
+                    </div>
+
+                    <p className="mb-4 text-center">
+                        Don't have an account?{' '}
+                        <Link to="/register" className="text-blue-600 hover:underline">
+                            Sign up
+                        </Link>
+                    </p>
+
+                    <button type="submit" className="submit-btn" id='signin'>SIGN IN</button>
+                </form>
+
+                <div className="video-container">
+                    <video className="login-video" autoPlay loop muted>
+                        <source src={hello} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                    <div className="video-text-overlay">
+                        <h1>Welcome Back!</h1>
+                        <p>To keep connected with us please login with your personal info</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full mt-1 p-2 border border-gray-300 rounded"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Submit
-        </button>
-      </form>
-    </div>
-  )
+    );
 };

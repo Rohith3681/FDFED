@@ -15,7 +15,7 @@ export const Searchbar = () => {
             return alert('All fields are required!');
         }
         // Navigate to search results with location as a parameter
-        window.location.href = `/search-results/${location}`;
+        window.location.href = `/results/${location}`;
     };
 
     return (

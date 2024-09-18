@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import './Register.css'
+import './Register.css';
+import hello from '../../assets/images/hero-video.mp4'; // Ensure this path is correct
+
 export const Register = () => {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('user');
-    const [employeeNumber, setEmployeeNumber] = useState('');
+    const [employeeId, setemployeeId] = useState('');
     const [signedin, setSignedin] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -19,8 +21,7 @@ export const Register = () => {
             name,
             password,
             role,
-            // Include employeeId only if the role is 'employee'
-            ...(role === 'employee' && { employeeId: employeeNumber })
+            ...(role === 'employee' && { employeeId }) // Adjusted key name to match with backend
         };
 
         try {
@@ -36,7 +37,7 @@ export const Register = () => {
                 setName('');
                 setPassword('');
                 setRole('user');
-                setEmployeeNumber('');
+                setemployeeId('');
                 setSignedin(true);
             } else {
                 const errorMessage = await res.text();
@@ -54,72 +55,79 @@ export const Register = () => {
     };
 
     return (
-        <div>
-            <h1>{signedin ? 'Registered Successfully !!!' : 'Please Register'}</h1>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {loading && <p>Loading...</p>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="name">Name:</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        placeholder="Enter your name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                    />
-                </div>
+        <div className="register-container">
+            <div className="register-box">
+                <form onSubmit={handleSubmit} className="form-container">
+                    <h2 id='text' className="text-2xl mb-4 font-bold text-center">{signedin ? 'Registered Successfully !!!' : 'Create Account'}</h2>
 
-                <div>
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
+                    {error && <p className="text-red-500">{error}</p>}
+                    {loading && <p>Loading...</p>}
 
-                <div>
-                    <label htmlFor="role">Role:</label>
-                    <select
-                        id="role"
-                        name="role"
-                        value={role}
-                        onChange={handleRoleChange}
-                        required
-                    >
-                        <option value="user">User</option>
-                        <option value="employee">Employee</option>
-                    </select>
-                </div>
-
-                {role === 'employee' && (
-                    <div>
-                        <label htmlFor="employeeNumber">Employee Number:</label>
+                    <div className="mb-4">
                         <input
-                            type="number"
-                            id="employeeNumber"
-                            name="employeeNumber"
-                            placeholder="Enter your employee number"
-                            value={employeeNumber}
-                            onChange={(e) => setEmployeeNumber(e.target.value)}
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Name"
+                            className="input-field"
                             required
                         />
                     </div>
-                )}
 
-                <button type="submit" disabled={loading}>Submit</button>
-            </form>
+                    <div className="mb-4">
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Password"
+                            className="input-field"
+                            required
+                        />
+                    </div>
 
-            {/* Debugging output to ensure the role and employee number state updates */}
-            <p>Selected Role: {role}</p>
-            {role === 'employee' && <p>Employee Number: {employeeNumber}</p>}
+                    <div className="mb-4">
+                        <select
+                            id="role"
+                            value={role}
+                            onChange={handleRoleChange}
+                            className="input-field"
+                            required
+                        >
+                            <option value="user">User</option>
+                            <option value="employee">Employee</option>
+                        </select>
+                    </div>
+
+                    {role === 'employee' && (
+                        <div className="mb-4">
+                            <input
+                                type="number"
+                                id="employeeId"
+                                value={employeeId}
+                                onChange={(e) => setemployeeId(e.target.value)}
+                                placeholder="Employee Number"
+                                className="input-field"
+                                required
+                            />
+                        </div>
+                    )}
+
+                    <button type="submit" className="submit-btn" disabled={loading}>Submit</button>
+                </form>
+
+                <div className="video-container">
+                    <video className="register-video" autoPlay loop muted>
+                        <source src={hello} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                    <div className="video-text-overlay">
+                        <h1>Hello, Friend!</h1>
+                        <p>Enter your personal details and start journey with us</p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

@@ -12,6 +12,11 @@ const schema = new mongoose.Schema({
     id: {
         type: String,
         required: true
+    },
+    bookings: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Tour',
+        default: []
     }
 });
 
