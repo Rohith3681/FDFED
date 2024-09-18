@@ -9,7 +9,7 @@ export const SearchBar = () => {
   const navigate = useNavigate();
 
   const handleSearch = () => {
-    navigate(`/results/${location}`);
+    navigate(`/results?location=${location}&date=${date}&maxMembers=${maxMembers}`);
   };
 
   return (
