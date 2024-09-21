@@ -166,14 +166,22 @@ app.post('/book', async (req, res) => {
 
 
 app.get('/tours', async (req, res) => {
-    try{
-      const tours = await Tour.find();
-      res.json(tours);
+    try {
+        const tours = await Tour.find();
+
+        // Map through the tours to modify the photo field
+        const toursWithImagePath = tours.map(tour => ({
+            ...tour._doc, // Spread the original tour document
+            photo: `..\Backend\${tour.image}` // Update the photo path
+        }));
+
+        res.json(toursWithImagePath);
     } catch (error) {
-      console.error('Error fetching tours:', error);
-      res.status(500).json({ error: 'Internal server error' });
+        console.error('Error fetching tours:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-  });
+});
+
 
 app.get('/user/profile/:username', async (req, res) => {
     try {
@@ -208,13 +216,11 @@ app.post('/create', upload.single('image'), async (req, res) => {
     } = req.body;
 
     try {
-        // Find user by username
         const user = await User.findOne({ name: username });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Create new tour
         const newTour = new Tour({
             title,
             city,
@@ -223,12 +229,12 @@ app.post('/create', upload.single('image'), async (req, res) => {
             price,
             maxGroupSize,
             desc,
-            creator: user._id // Store the user ID as the creator
+            creator: user._id,
+            image: req.file.path, // Save the image path
         });
 
         await newTour.save();
 
-        // Add the tour ID to the user's booking array if the user is an employee
         if (user.role === 'employee') {
             user.booking.push(newTour._id);
             await user.save();
@@ -240,6 +246,7 @@ app.post('/create', upload.single('image'), async (req, res) => {
         res.status(500).json({ message: 'Error creating tour' });
     }
 });
+
 
 app.post('/book', async (req, res) => {
     try {

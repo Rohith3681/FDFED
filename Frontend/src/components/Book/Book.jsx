@@ -9,12 +9,12 @@ const Book = () => {
     useEffect(() => {
         const fetchTours = async () => {
             try {
-                const response = await fetch('http://localhost:8000/tours'); // Native fetch API
+                const response = await fetch('http://localhost:8000/tours'); // Fetch tours from backend
                 if (!response.ok) {
                     throw new Error('Failed to fetch tours');
                 }
-                const data = await response.json(); // Parse the JSON response
-                setTours(data); // Set the fetched tours in the state
+                const data = await response.json(); // Parse JSON response
+                setTours(data); // Set tours in state
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching tours:', err);
@@ -35,7 +35,7 @@ const Book = () => {
         <div className="tours-container">
             {tours.length > 0 ? (
                 tours.map((tour) => (
-                    <Display key={tour._id} tour={tour} />
+                    <Display key={tour._id} tour={tour} /> // Pass the entire tour object
                 ))
             ) : (
                 <p>No tours available</p>

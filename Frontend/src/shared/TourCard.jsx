@@ -21,7 +21,7 @@ const TourCard = ({ tour }) => {
         <div className={styles.tour_card}>
             <Card>
                 <div className={styles.tour_img}>
-                    <img src={photo} alt="tour" />
+                    <img src={photo} alt={title} />
                     {featured && <span>Featured</span>}
                 </div>
                 <CardBody>
@@ -52,7 +52,7 @@ const TourCard = ({ tour }) => {
 
                     <h5 
                         className={styles.tour_title} 
-                        onClick={handleNavigation} // Handle click for title
+                        onClick={handleNavigation} 
                     >
                         {title}
                     </h5>
@@ -67,7 +67,7 @@ const TourCard = ({ tour }) => {
                         <h5>${price}<span>/per person</span></h5>
                         <button 
                             className={classNames(styles.btn, styles.booking_btn)}
-                            onClick={handleNavigation} // Handle click for button
+                            onClick={handleNavigation} 
                         >
                             Book Now
                         </button>

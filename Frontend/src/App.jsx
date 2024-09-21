@@ -111,7 +111,7 @@ const AppRoutes = () => {
       path: "/book",
       element: isAuthenticated ? (
         <>
-          <Navbar />
+          {/* <Navbar /> */}
           <Book />
           <Footer />
         </>
