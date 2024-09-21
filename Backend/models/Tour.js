@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
+import AutoIncrement from 'mongoose-sequence'; // Import the auto-increment plugin
 
 const tourSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true
-    },
+    },  
     city: {
         type: String,
         required: true
@@ -39,5 +40,7 @@ const tourSchema = new mongoose.Schema({
         required: true
     }
 });
+
+tourSchema.plugin(AutoIncrement(mongoose), { inc_field: 'Id' });
 
 export default mongoose.model("Tour", tourSchema);

@@ -1,33 +1,71 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import './Booking.css';
+import { useSelector } from 'react-redux';
 
 const Booking = () => {
+    const { username } = useSelector((state) => state.auth);
     const location = useLocation();
-    const { tour } = location.state || {}; // Get tour details from location state
-
+    const { tour } = location.state || {};
+    
     if (!tour) {
         return <div>No tour data available</div>;
     }
 
-    const { title, city, distance, price, maxGroupSize, desc, photo } = tour;
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [adults, setAdults] = useState(1);
-    const [children, setChildren] = useState(0);
+    const [name, setName] = React.useState('');
+    const [phone, setPhone] = React.useState('');
+    const [startDate, setStartDate] = React.useState('');
+    const [endDate, setEndDate] = React.useState('');
+    const [adults, setAdults] = React.useState(1);
+    const [children, setChildren] = React.useState(0);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission logic here
-        console.log({ name, phone, startDate, endDate, adults, children });
+
+        const bookingData = {
+            username,
+            tourId: tour._id,
+            name,
+            phone,
+            startDate,
+            endDate,
+            adults,
+            children,
+        };
+
+        try {
+            const response = await fetch('http://localhost:8000/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Booking successful:', data);
+                // Reset form fields
+                setName('');
+                setPhone('');
+                setStartDate('');
+                setEndDate('');
+                setAdults(1);
+                setChildren(0);
+            } else {
+                console.log('Booking failed:', data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
+
+    const { title, city, distance, price, maxGroupSize, desc, reviews } = tour;
 
     return (
         <div className="booking-container">
             <div className="tour-details">
-                <img src={photo} alt={title} className="tour-image" />
                 <div className="tour-info">
                     <h2>{title}</h2>
                     <p><strong>City:</strong> {city}</p>
@@ -35,6 +73,14 @@ const Booking = () => {
                     <p><strong>Price:</strong> ${price} per person</p>
                     <p><strong>Max Group Size:</strong> {maxGroupSize}</p>
                     <p>{desc}</p>
+                    <div className="reviews">
+                        <h3>Reviews:</h3>
+                        <ul>
+                            {reviews.map((review, index) => (
+                                <li key={index}>{review}</li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div className="booking-form">

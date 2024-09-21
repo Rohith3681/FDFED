@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 const Create = () => {
   const { username } = useSelector((state) => state.auth);
   
-  // Define separate state variables for each field
   const [title, setTitle] = useState('');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
@@ -12,7 +11,7 @@ const Create = () => {
   const [price, setPrice] = useState('');
   const [maxGroupSize, setMaxGroupSize] = useState('');
   const [desc, setDesc] = useState('');
-  const [reviews, setReviews] = useState('');
+  const [image, setImage] = useState(null); // New state for image
   const [statusMessage, setStatusMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -40,8 +39,8 @@ const Create = () => {
       case 'desc':
         setDesc(value);
         break;
-      case 'reviews':
-        setReviews(value);
+      case 'image':
+        setImage(e.target.files[0]); // Handle file input
         break;
       default:
         break;
@@ -52,23 +51,23 @@ const Create = () => {
     e.preventDefault();
     setLoading(true);
 
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('city', city);
+    formData.append('address', address);
+    formData.append('distance', distance);
+    formData.append('price', price);
+    formData.append('maxGroupSize', maxGroupSize);
+    formData.append('desc', desc);
+    formData.append('username', username);
+    if (image) {
+      formData.append('image', image); // Append the image file
+    }
+
     try {
       const response = await fetch('http://localhost:8000/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title,
-          city,
-          address,
-          distance,
-          price,
-          maxGroupSize,
-          desc,
-          reviews, // Convert reviews string to array
-          username // Send username instead of creatorId
-        }),
+        body: formData, // Use formData for file uploads
       });
 
       const result = await response.json();
@@ -82,7 +81,7 @@ const Create = () => {
         setPrice('');
         setMaxGroupSize('');
         setDesc('');
-        setReviews('');
+        setImage(null); // Reset image state
       } else {
         setStatusMessage(`Failed to create tour: ${result.message}`);
       }
@@ -128,15 +127,8 @@ const Create = () => {
           <textarea id="desc" name="desc" value={desc} onChange={handleChange} required />
         </div>
         <div>
-          <label htmlFor="reviews">Reviews:</label>
-          <input
-            type="text"
-            id="reviews"
-            name="reviews"
-            value={reviews}
-            onChange={handleChange}
-            placeholder="Enter reviews as a comma-separated list"
-          />
+          <label htmlFor="image">Upload Image:</label>
+          <input type="file" id="image" name="image" onChange={handleChange} required />
         </div>
         <button type="submit" disabled={loading}>
           {loading ? 'Submitting...' : 'Submit'}

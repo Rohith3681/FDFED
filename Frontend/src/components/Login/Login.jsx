@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '../../features/auth/authSlice';
 import './Login.css';
@@ -10,6 +10,7 @@ export const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const dispatch = useDispatch();
+    const navigate = useNavigate(); // Import and use useNavigate hook
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -37,6 +38,9 @@ export const Login = () => {
                 // Check if the session cookie is present
                 const cookies = document.cookie;
                 console.log('Cookies:', cookies); // Log cookies to verify session cookie
+
+                // Navigate to /home after successful login
+                navigate('/');
             } else if (res.status === 401) {
                 setError('Invalid credentials. Please try again.');
             } else {

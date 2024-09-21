@@ -35,10 +35,17 @@ export const Navbar = () => {
                     <input type="text" placeholder="Search..." />
                 </div>
                 <div className="nav-links">
-                    <NavLink className={(e) => e.isActive ? "orange" : ""} to="/"><li>Home</li></NavLink>
-                    <NavLink className={(e) => e.isActive ? "orange" : ""} to="/about"><li>About</li></NavLink>
+                    {/* {isAuthenticated ? ( */}
+                        {/* <> */}
+                            <NavLink className={(e) => e.isActive ? "orange" : ""} to="/"><li>Home</li></NavLink>
+                            <NavLink className={(e) => e.isActive ? "orange" : ""} to="/about"><li>About</li></NavLink>
+                        {/* </>
+                    ) : null} */}
                     {isAuthenticated && role == '8180' ? (
                         <NavLink className={(e) => e.isActive ? "orange" : ""} to="/create"><li>Create Tour</li></NavLink>
+                    ) : null}
+                    {isAuthenticated && role == '2120' ? (
+                        <NavLink className={(e) => e.isActive ? "orange" : ""} to="/book"><li>Book Tour</li></NavLink>
                     ) : null}
                     {isAuthenticated ? (
                         <>

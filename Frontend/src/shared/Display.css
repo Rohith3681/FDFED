@@ -1,0 +1,68 @@
+/* Display.css */
+.tour-card {
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.card-top {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.tour-location {
+    font-size: 16px;
+    color: #333;
+}
+
+.card-bottom {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tour-title {
+    font-size: 18px;
+    color: #333;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.gap-1 {
+    gap: 8px;
+}
+
+.mt-3 {
+    margin-top: 16px;
+}
+
+.review-button {
+    background-color: #007bff; /* Button background color */
+    border-color: #007bff; /* Button border color */
+    color: #fff; /* Button text color */
+}
+
+.review-button:hover {
+    background-color: #0056b3; /* Button background color on hover */
+    border-color: #004085; /* Button border color on hover */
+}

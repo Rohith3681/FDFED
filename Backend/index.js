@@ -6,6 +6,8 @@ import ROLES from './roles.js'
 import session from "express-session";
 import mongoDBSession from "connect-mongodb-session";
 import Tour from "./models/Tour.js";
+import Booking from "./models/Booking.js"
+import multer from 'multer';
 
 const MongoDBStore = mongoDBSession(session);
 
@@ -15,6 +17,19 @@ const store = new MongoDBStore({
 });
 
 const app = express();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Specify your uploads directory
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage });
+
+
 app.use(cors({
     origin: 'http://localhost:5173', // Your frontend origin
     credentials: true
@@ -31,10 +46,7 @@ app.use(session({
 app.post('/register', async (req, res) => {
     try {
         const { name, password, role, employeeId } = req.body;
-
-        // Initialize variables for user/employee-specific fields
-        let userSpecificField = [];
-        let employeeSpecificField = [];
+        console.log(role);
         let id;
 
         // Assign ID based on role
@@ -55,8 +67,10 @@ app.post('/register', async (req, res) => {
             name,
             password,
             id,  // '2120' for user, '8180' for employee
-            userSpecificField,
-            employeeSpecificField
+            role,
+            ...(role === 'employee' ? { booking: [] } : {}),
+            ...(role === 'user' ? { ticket: [] } : {})
+            // booking and ticket fields will be initialized with defaults (empty arrays)
         });
 
         await user.save();
@@ -66,7 +80,6 @@ app.post('/register', async (req, res) => {
         res.status(500).send('Error registering user');
     }
 });
-
 
 
 app.post("/login", async (req, res) => {
@@ -108,55 +121,71 @@ app.post('/logout', (req, res) => {
     });
 });
 
-app.post('/create', async (req, res) => {
+app.post('/book', async (req, res) => {
     try {
-        const { title, city, address, distance, price, maxGroupSize, desc, reviews, username } = req.body;
-        // Find the user by username
+        const { username, tourId, name, phone, startDate, endDate, adults, children } = req.body;
+        // Validate required fields
+        if (!username || !tourId || !name || !phone || !startDate || !endDate || !adults) {
+            return res.status(400).json({ message: 'Please fill all required fields' });
+        }
+        console.log(endDate)
+        // Create a new booking
+        const newBooking = new Booking({
+            name,
+            phone,
+            startDate,
+            endDate,
+            adults,
+            children,
+            tour: tourId, // Tour reference
+        });
+        
+        // Save the booking to the database
+        const savedBooking = await newBooking.save();
+        console.log(username)
+        // Update the user's bookings array by pushing the saved booking's ID
         const user = await User.findOne({ name: username });
         console.log(user)
+        if (user) {
+            user.booking.push(savedBooking._id); // Push the booking ID to 'booking' array
+            await user.save(); // Save the updated user document
+        }
+
+        console.log("hello")
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const creatorId = user._id;
-
-        // Create a new tour with the found user's ID
-        const newTour = new Tour({
-            title,
-            city,
-            address,
-            distance,
-            price,
-            maxGroupSize,
-            desc,
-            reviews,
-            creator: creatorId
-        });
-
-        // Save the new tour
-        await newTour.save();
-
-        // Add the new tour's ID to the user's bookings
-        user.bookings.push(newTour._id);
-        await user.save();
-
-        // Respond with success
-        res.status(201).json({ message: 'Tour created successfully', newTour });
+        // Send response with the saved booking
+        res.status(201).json({ message: 'Booking successful', booking: savedBooking });
     } catch (error) {
-        console.error('Error in /create route:', error);
-        res.status(500).json({ message: 'Failed to create tour', error });
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
 
+app.get('/tours', async (req, res) => {
+    try{
+      const tours = await Tour.find();
+      res.json(tours);
+    } catch (error) {
+      console.error('Error fetching tours:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 app.get('/user/profile/:username', async (req, res) => {
     try {
-        const { username } = req.params; // Get username from route parameters
-        const user = await User.findOne({ name: username }); // Use `name` field to find user
+        const { username } = req.params;
+        // Find the user and populate the bookings array with the Tour documents
+        const user = await User.findOne({ name: username });
+        if(user.id == '2120') user.populate('ticket')
+
+        if(user.id === '8180') user.populate('booking')
 
         if (user) {
-            res.json(user);
+            res.json(user); // Send the user details, including populated bookings (tours)
         } else {
             res.status(404).json({ error: 'User not found' });
         }
@@ -166,6 +195,92 @@ app.get('/user/profile/:username', async (req, res) => {
     }
 });
 
+app.post('/create', upload.single('image'), async (req, res) => {
+    const {
+        title,
+        city,
+        address,
+        distance,
+        price,
+        maxGroupSize,
+        desc,
+        username,
+    } = req.body;
+
+    try {
+        // Find user by username
+        const user = await User.findOne({ name: username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Create new tour
+        const newTour = new Tour({
+            title,
+            city,
+            address,
+            distance,
+            price,
+            maxGroupSize,
+            desc,
+            creator: user._id // Store the user ID as the creator
+        });
+
+        await newTour.save();
+
+        // Add the tour ID to the user's booking array if the user is an employee
+        if (user.role === 'employee') {
+            user.booking.push(newTour._id);
+            await user.save();
+        }
+
+        res.status(201).json({ message: 'Tour created successfully', tour: newTour });
+    } catch (error) {
+        console.error('Error creating tour:', error);
+        res.status(500).json({ message: 'Error creating tour' });
+    }
+});
+
+app.post('/book', async (req, res) => {
+    try {
+        const { userId, tourId, name, phone, startDate, endDate, adults, children } = req.body;
+
+        // Validate required fields
+        if (!userId || !tourId || !name || !phone || !startDate || !endDate || !adults) {
+            return res.status(400).json({ message: 'Please fill all required fields' });
+        }
+
+        // Create a new booking
+        const newBooking = new Booking({
+            name,
+            phone,
+            startDate,
+            endDate,
+            adults,
+            children,
+            tour: mongoose.Types.ObjectId(tourId),
+        });
+
+        // Save the booking to the database
+        await Booking.save();
+
+        // Update the user's bookings array
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { $push: { bookings: savedBooking._id } },
+            { new: true } // Return the updated user document
+        );
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(201).json({ message: 'Booking successful', booking: savedBooking });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 app.listen(8000, () => {
     console.log("Server started on port 8000");

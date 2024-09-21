@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Register.css';
 import hello from '../../assets/images/hero-video.mp4'; // Ensure this path is correct
+import { useNavigate } from 'react-router-dom';
 
 export const Register = () => {
     const [name, setName] = useState('');
@@ -10,6 +11,7 @@ export const Register = () => {
     const [signedin, setSignedin] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -39,6 +41,7 @@ export const Register = () => {
                 setRole('user');
                 setemployeeId('');
                 setSignedin(true);
+                navigate('/login');
             } else {
                 const errorMessage = await res.text();
                 setError(`Error during signup: ${res.status} ${errorMessage}`);
