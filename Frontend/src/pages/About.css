@@ -1,0 +1,170 @@
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+  }
+  
+  /* Company and Story Section */
+  .company-section, .story-section {
+    margin-top: 135px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+    transform: translateY(0);
+    transition: all 1s ease;
+    scroll-behavior: smooth;
+    width: 100%;
+
+  }
+  
+  .company-section h2, .story-section h2, .people-section h2, .achievements-section h2 {
+    color: #01796F;
+    font-size: 2em;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }
+  
+  .company-section p, .story-section p {
+    font-size: 18px;
+    color: #555;
+    flex: 1;
+    margin-right: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  }
+  
+  .company-image, .story-image {
+    width: 400px;
+    height: auto;
+    display: flex;
+    margin: 10px;
+    flex-direction: column;
+    border-radius: 8px;
+  }
+  
+  .divider {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 40px 0;
+  }
+  
+  .story-section {
+    flex-direction: row-reverse;
+  }
+  
+  .story-text {
+    flex: 1;
+    margin-left: 20px;
+  }
+  
+ /* Meet Our People Section */
+.people-section {
+  text-align: center;
+}
+
+.people-flex {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin: 0 -10px;
+}
+
+/* Person card style for 3 in a row */
+.person-card-flex {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: 20px;
+  margin: 10px;
+  transition: box-shadow 0.3s
+      ease-in-out, transform 0.3s
+      ease-in-out, -webkit-transform 0.3s
+      ease-in-out;
+  display: flex;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 20px 0px;
+}
+
+.person-card-flex:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.person-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.person-card-flex h3 {
+  margin: 15px 0 5px;
+  font-size: 1.5em;
+  color: #01796F;
+}
+
+.person-card-flex p {
+  font-size: 1em;
+  color: #888;
+}
+
+/* Add media queries for responsiveness */
+@media (max-width: 1024px) {
+  .person-card-flex {
+    flex-basis: calc(50% - 20px); /* 2 in a row on medium screens */
+  }
+
+  /* Ensure two cards on the last row are centered */
+  .people-flex {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .person-card-flex {
+    flex-basis: calc(100% - 20px); /* 1 in a row on small screens */
+  }
+
+  .people-flex {
+    justify-content: center; /* Center the single card */
+  }
+}
+  
+  
+  /* Achievements Section */
+  .achievements-section {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  
+  .achievements-grid {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .achievement-item {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .achievement-item h3 {
+    font-size: 2.5em;
+    color: #000;
+    margin-bottom: 10px;
+  }
+  
+  .achievement-item p {
+    font-size: 1.2em;
+    color: #666;
+  }
+  
+ 
