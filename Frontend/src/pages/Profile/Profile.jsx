@@ -37,7 +37,7 @@ const Profile = () => {
         <div className="bookings-details">
           <h2>Username: {userDetails.name}</h2>
           <h3>Booked Tours:</h3>
-          {userDetails.bookings.length > 0 ? (
+          {userDetails.bookings && userDetails.bookings.length > 0 ? ( // Safe check here
             <div className="tour-cards-container">
               {userDetails.bookings.map((tour) => (
                 <Display key={tour._id} tour={tour} />

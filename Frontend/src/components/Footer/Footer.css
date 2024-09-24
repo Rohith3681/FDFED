@@ -1,6 +1,7 @@
 /* Footer Container */
+
 .footer {
-  background-color: #333;
+  background-color: rgb(0, 0, 0);
   color: white;
   padding: 40px 20px;
   position: relative;
@@ -15,7 +16,9 @@
   gap: 20px;
 }
 
+
 /* Footer Section Styles */
+
 .footer-section {
   flex: 1;
   min-width: 200px;
@@ -24,7 +27,7 @@
 .footer-section h4 {
   font-size: 18px;
   margin-bottom: 20px;
-  color: #FF6F61;
+  color: rgb(239, 119, 71);
 }
 
 .footer-section ul {
@@ -43,32 +46,68 @@
 }
 
 .footer-section ul li a:hover {
-  color: #f9a825; /* Golden accent color on hover */
+  color: rgb(239, 119, 71);
+  /* Golden accent color on hover */
 }
 
+.footer-section.brand h6 {
+  color: white;
+  font-family: Brush Script MT, Brush Script Std, cursive;
+  margin-left: 70px;
+  font-size: 1.5rem;
+  opacity: 0.6;
+  /* Golden accent color on hover */
+}
+
+.theme {
+  font-weight: 500;
+  margin-left: 70px;
+  margin-top: 25px;
+}
+
+.footer-section.quick-links {
+  margin-left: 250px;
+}
+
+.footer-section.quick-links li {
+  font-weight: 500;
+}
+
+
 /* Contact Section */
+
 .footer-section.contact p {
   margin-bottom: 10px;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .footer-section.contact i {
   margin-right: 10px;
 }
 
+
 /* Social Media Section */
+
+.footer-section.social {
+  margin-left: 15px;
+}
+
 .footer-section.social .social-icons a {
   color: white;
-  margin-right: 15px;
+  margin-left: 15px;
   font-size: 20px;
   transition: color 0.3s;
 }
 
 .footer-section.social .social-icons a:hover {
-  color: #f9a825; /* Golden accent color on hover */
+  color: rgb(239, 119, 71);
+  /* Golden accent color on hover */
 }
 
+
 /* Footer Bottom */
+
 .footer-bottom {
   text-align: center;
   margin-top: 40px;

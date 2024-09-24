@@ -2,12 +2,90 @@
     display: flex;
     align-items: center;
     width: 100%;
-    max-width: 1200px;
-    margin: 30px auto;
+    max-width: 500px;
+    /* Adjust as needed */
+    margin: 30px 0;
+    /* Remove auto margin to prevent centering */
     padding: 10px 20px;
     background-color: #f5f5f5;
     border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    justify-content: flex-start;
+    margin-left: 20px;
+    /* Align items to the left */
+}
+
+.search-heading {
+    color: rgb(0, 0, 0);
+    font-family: Gill Sans, sans-serif;
+    margin-bottom: 15px;
+    align-items: center;
+    margin-top: 20px;
+    margin-left: 100px;
+    /* Pushes it to the left */
+    background-color: rgb(239, 119, 71);
+    /* Your desired color */
+    color: white;
+    /* Ensures the text is readable */
+    padding: 10px 20px;
+    /* Adds padding around the text */
+    display: inline-block;
+    /* Keeps the background color contained to the text */
+    font-size: 1.5rem;
+    /* Adjust as needed */
+    font-weight: bold;
+    border-radius: 5px;
+    /* Optional: gives the background slightly rounded corners */
+}
+
+.search-subheading {
+    font-size: 16px;
+    color: rgb(0, 0, 0);
+    margin-bottom: 20px;
+    margin-left: 20px;
+    font-weight: 500;
+    /* Aligns subheading with the heading */
+    width: 50%;
+    /* Keep the same width for consistency */
+}
+
+.search-subheading b {
+    margin-bottom: 1px;
+    margin-left: 20px;
+    /* Space below bold text */
+    display: flex;
+    /* Ensures it starts on a new line */
+}
+
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    /* Center vertically */
+    width: 100%;
+    padding: 20px;
+    /* Adjust as needed */
+}
+
+.text-section {
+    width: 65%;
+    padding-left: 50px;
+    /* Take left half */
+}
+
+.image-section {
+    width: 40%;
+    padding-right: 50px;
+    /* Take right half */
+}
+
+.adventure-image {
+    width: 100%;
+    height: 450px;
+    /* Maintain aspect ratio */
+    object-fit: cover;
+    opacity: 0.85;
+    border-radius: 5px;
 }
 
 .input-wrapper {
@@ -19,8 +97,9 @@
 }
 
 .icon {
-    font-size: 20px;
-    color: #FF7F50;
+    font-size: 22px;
+    /* Slightly larger icon */
+    color: rgb(239, 119, 71);
     margin-right: 10px;
 }
 
@@ -32,7 +111,8 @@
 
 .input-label {
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 500;
+    /* Slightly bolder label */
     color: #666;
     margin-bottom: 4px;
 }
@@ -57,7 +137,8 @@
     background-color: #FF7F50;
     border: none;
     border-radius: 4px;
-    padding: 10px 20px;
+    padding: 10px 15px;
+    /* Adjusted padding */
     color: white;
     cursor: pointer;
     display: flex;
@@ -74,7 +155,6 @@
     .search-bar {
         flex-direction: row;
     }
-
     .input-wrapper {
         margin-right: 20px;
     }

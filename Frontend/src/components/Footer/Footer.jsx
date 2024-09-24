@@ -5,6 +5,16 @@ export const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
+
+<div className="footer-section brand">
+  <h6>
+    Pack Your Bags
+  </h6>
+  <p className='theme'>
+  –"Your Adventure Awaits, Explore the World with Us!"
+  </p>
+</div>
+
         {/* Quick Links Section */}
         <div className="footer-section quick-links">
           <h4>Quick Links</h4>
@@ -18,10 +28,10 @@ export const Footer = () => {
 
         {/* Contact Section */}
         <div className="footer-section contact">
-          <h4>Contact Us</h4>
-          <p><i className="fas fa-map-marker-alt"></i> 123 Adventure Lane, Wanderlust City, Country</p>
-          <p><i className="fas fa-phone-alt"></i> +123 456 7890</p>
-          <p><i className="fas fa-envelope"></i> contact@traveltour.com</p>
+          <h4>Contact Info</h4>
+          <p><i className="fas fa-map-marker-alt"></i> 321-1, Mumbai, India</p>
+          <p><i className="fas fa-phone-alt"></i> +91 8639464273</p>
+          <p><i className="fas fa-envelope"></i> contact@packyourbags.com</p>
         </div>
 
         {/* Social Media Section */}
@@ -38,7 +48,7 @@ export const Footer = () => {
       
       {/* Footer Bottom */}
       <div className="footer-bottom">
-        <p>&copy; 2024 Travel & Tour. All Rights Reserved.</p>
+        <h5>&copy; 2024 Pack Your Bags. All Rights Reserved.</h5>
       </div>
     </footer>
   );

@@ -7,16 +7,23 @@ import Home from './pages/Home/Home';
 import { About } from './pages/About';
 import { Login } from './components/Login/Login';
 import { Register } from './components/Register/Register';
-import Results from './components/SearchResults/SearchResults';
+import SearchResults from './components/SearchResults/SearchResults';
 import Booking from './components/Booking/Booking';
 import Profile from './pages/Profile/Profile';
 import { Footer } from './components/Footer/Footer';
 import Create from './components/Create/Create';
 import Display from './shared/Display';
 import Book from './components/Book/Book';
+import Admin from './components/AdminLogin/AdminLogin';
+import AddAdmin from './components/Admin/AddAdmin/AddAdmin';
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
+import Statistics from './components/Admin/Statistics/Statistics';
+import Customers from './components/Admin/Customers/Customers';
+import Tours from './components/Admin/Tours/Tours';
 
 const AppRoutes = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const role = useSelector((state) => state.auth.role);
 
   const router = createBrowserRouter([
     {
@@ -35,6 +42,16 @@ const AppRoutes = () => {
         <>
           <Navbar />
           <Login />
+          <Footer />
+        </>
+      ),
+    },
+    {
+      path: "/adminLogin",
+      element: (
+        <>
+          <Navbar />
+          <Admin />
           <Footer />
         </>
       ),
@@ -60,11 +77,11 @@ const AppRoutes = () => {
       ),
     },
     {
-      path: "/results/:location",
+      path: "/results",
       element: isAuthenticated ? (
         <>
           <Navbar />
-          <Results />
+          <SearchResults />
           <Footer />
         </>
       ) : (
@@ -108,6 +125,15 @@ const AppRoutes = () => {
       ),
     },
     {
+      path: "/Admin",
+      element: isAuthenticated && role == '5150'? (
+        <>
+          <AdminDashboard />
+          <Footer />
+        </>
+      ) : null
+    },
+    {
       path: "/book",
       element: isAuthenticated ? (
         <>
@@ -129,6 +155,58 @@ const AppRoutes = () => {
         </>
       ) : (
         <Navigate to="/login" />
+      ),
+    },
+    {
+      path: '/statistics',
+      element: isAuthenticated && role === '5150' ? (
+        <div className="dashboard-container">
+          <AdminDashboard />
+          <Statistics />
+        </div>
+      ) : null
+    },    
+    {
+      path: '/customers',
+      element: isAuthenticated && role == '5150'? (
+        <>
+          <div className="dashboard-container">
+            <AdminDashboard />
+            <Customers />
+          </div>
+        </>
+      ) : null
+    },
+    {
+      path: '/tours',
+      element: isAuthenticated && role == '5150'? (
+        <>
+          <div className="dashboard-container">
+            <AdminDashboard />
+            <Tours />
+          </div>
+        </>
+      ) : null
+    },
+    {
+      path: "/AddAdmin",
+      element: isAuthenticated && role == '5150'? (
+        <>
+          <div className="dashboard-container">
+            <AdminDashboard />
+            <AddAdmin />
+          </div>
+        </>
+      ) : null
+    },
+    {
+      path: '/bookings',
+      element: (
+        <>
+          <Navbar />
+          <Home />
+          <Footer />
+        </>
       ),
     },
   ]);

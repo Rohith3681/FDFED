@@ -1,5 +1,9 @@
 /* SearchResults.css */
 
+.total{
+  margin-top: 60px;
+}
+
 .search-results-wrapper {
   margin: 0;
   padding: 0;

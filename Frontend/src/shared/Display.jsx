@@ -17,7 +17,7 @@ const Display = ({ tour }) => {
     return (
         <div className="tour-card">
             <Card className="card">
-                <CardImg top src="photo" alt={title} className="tour-image" />
+                <CardImg top src={`../../${photo}`} alt={title} className="tour-image" />
                 <CardBody>
                     <div className="card-top d-flex align-items-center justify-content-between">
                         <span className="tour-location d-flex align-items-center gap-1">

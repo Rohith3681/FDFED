@@ -1,49 +1,75 @@
-/* Hero Section Styles */
-.hero_subtitle img {
-  width: 2.3rem;
-  height: 2.3rem;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.hero_content h1 {
-  font-size: 3.2rem;
-  font-weight: 600;
-  margin-top: 1rem;
-  margin-bottom: 2rem;
-  color: var(--heading-color);
+.container {
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden;
+  /* Prevent overflow of the video section */
 }
 
-.hero_content h1.highlight {
-  color: var(--secondary-color);
-}
-
-.hero_content p {
-  font-size: 1.1rem;
-  color: var(--text-color);
-  line-height: 2rem;
-}
-
-.hero_img-box img,
-.hero_img-box video {
+.video-section {
+  position: relative;
   width: 100%;
-  height: 350px;
-  border-radius: 20px;
-  border: 1px solid var(--secondary-color);
-  object-fit: cover;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.hero_content {
-  padding-top: 3.5rem;
+.background-video {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  filter: brightness(50%);
+  min-width: 100%;
+  /* Ensure it covers width */
+  min-height: 100%;
+  /* Ensure it covers height */
 }
 
-.hero_img-box {
-  padding-top: 2rem;
+@media (min-aspect-ratio: 16/9) {
+  .background-video {
+      width: 100%;
+      height: auto;
+  }
 }
+
+@media (max-aspect-ratio: 16/9) {
+  .background-video {
+      width: auto;
+      height: 100%;
+  }
+}
+
+.video-overlay {
+  text-align: center;
+}
+
+.video-overlay h1 {
+  font-size: 15vh;
+  color: white;
+  font-weight: 600;
+  transition: 0.5s;
+}
+
+.video-overlay h1:hover {
+  -webkit-text-stroke: 2px white;
+  color: transparent;
+}
+
 
 /* Home Section Styles */
+
 .img-box {
   position: relative;
   transition: transform 0.3s ease;
-  cursor: pointer; /* Smooth transition for hover effect */
+  cursor: pointer;
 }
 
 .destination-title {
@@ -59,32 +85,105 @@
 }
 
 .img-box:hover {
-  transform: scale(1.05); /* Slightly enlarge the image on hover */
+  transform: scale(1.05);
 }
 
+
+/* Why Choose Us Section */
+
+.why-choose-us-section {
+  margin: 50px auto;
+  text-align: center;
+}
+
+.why-choose-us-heading {
+  font-size: 32px;
+  font-weight: bolder;
+  margin-bottom: 40px;
+}
+
+.why-choose-us-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  margin-bottom: 50px;
+}
+
+.why-choose-us-box {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  border: 1px solid #ccc;
+  min-height: 250px;
+}
+
+.why-choose-us-box i {
+  font-size: 48px;
+  color: #FF7F50;
+  margin-bottom: 20px;
+}
+
+.why-choose-us-box h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.why-choose-us-box p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+  /* Adjust the line height for better readability */
+  margin: 10px 0;
+  font-weight: 500;
+  /* Add margin to separate paragraphs */
+  text-align: center;
+  /* Center align the text if desired */
+}
+
+@media (max-width: 768px) {
+  .why-choose-us-container {
+      flex-direction: column;
+  }
+  .why-choose-us-box {
+      width: 80%;
+      margin-bottom: 20px;
+  }
+}
+
+
 /* Parallax Section Styles */
+
 .parallax {
   position: relative;
-  height: 60vh; /* Adjust the height as needed */
-  background-image: url('../../assets/images/parallax-image.jpg'); /* Path to your image */
+  height: 60vh;
+  background-image: url('../../assets/images/parallax-image.jpg');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed; /* Ensures the parallax effect */
-  overflow: hidden;
+  background-attachment: fixed;
 }
 
 .parallax-content {
   position: absolute;
-  top: 50%; /* Center content vertically */
-  left: 50%; /* Center content horizontally */
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
   color: white;
-  max-width: 80%; /* Optional: limit the width of the text container */
+  max-width: 80%;
 }
 
 .parallax-text {
   margin-bottom: 30px;
+  color: white;
+  text-align: center;
 }
 
 .parallax-text p {
@@ -111,5 +210,40 @@
 .parallax h1 {
   font-size: 2.5rem;
   margin-top: 20px;
-  color: white; /* Ensure the heading text is white */
+  color: white;
+}
+
+.masonry-img {
+  transition: 0.3s;
+}
+
+.masonry-img:hover {
+  transform: scale(1.04);
+}
+
+.section_subtitle {
+  margin-top: auto;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  font-weight: 900;
+  font-family: Brush Script MT, Brush Script Std, cursive;
+  background-color: rgb(239, 119, 71);
+  /* Your desired color */
+  color: white;
+  /* Ensures the text is readable */
+  padding: 10px 20px;
+  /* Adds padding around the text */
+  display: inline-block;
+  /* Keeps the background color contained to the text */
+  font-size: 1.5rem;
+  /* Adjust as needed */
+  font-weight: bold;
+  border-radius: 5px;
+  /* Optional: gives the background slightly rounded corners */
+}
+
+.gallery_title {
+  font-weight: 500;
+  margin-left: 10px;
+  margin-bottom: 5px;
 }

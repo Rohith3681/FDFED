@@ -42,7 +42,7 @@ const tourSchema = new mongoose.Schema({
     image: {
         type: String,
         required: true
-    },
+    }
 });
 
 tourSchema.plugin(AutoIncrement(mongoose), { inc_field: 'Id' });

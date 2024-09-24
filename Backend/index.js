@@ -1,5 +1,7 @@
 import express from "express";
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import './mongo.js'
 import User from "./models/User.js";
 import ROLES from './roles.js'
@@ -7,6 +9,7 @@ import session from "express-session";
 import mongoDBSession from "connect-mongodb-session";
 import Tour from "./models/Tour.js";
 import Booking from "./models/Booking.js"
+import Admin from "./models/Admin.js";
 import multer from 'multer';
 
 const MongoDBStore = mongoDBSession(session);
@@ -16,19 +19,22 @@ const store = new MongoDBStore({
     collection: "sessions",
 });
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Specify your uploads directory
+        cb(null, '../Frontend/uploads/'); // Specify your uploads directory
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
+        const fileName = `${Date.now()}-${file.originalname.replace(/\\/g, '/')}`; // Ensure forward slashes in filename
+        cb(null, fileName);
     }
 });
 
 const upload = multer({ storage });
-
 
 app.use(cors({
     origin: 'http://localhost:5173', // Your frontend origin
@@ -78,6 +84,34 @@ app.post('/register', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Error registering user');
+    }
+});
+
+app.post('/adminSignup', async (req, res) => {
+    const { name, password } = req.body;
+
+    if (!name || !password) {
+      return res.status(400).json({ message: 'Username and password are required.' });
+    }
+
+    try {
+      const existingAdmin = await Admin.findOne({ name });
+
+      if (existingAdmin) {
+        return res.status(400).json({ message: 'Admin already exists.' });
+      }
+
+      // Store password as plain text (Not recommended for production environments)
+      const newAdmin = new Admin({
+        name,
+        password, // No hashing here, storing as it is
+      });
+
+      await newAdmin.save();
+      res.status(201).json({ message: 'Admin created successfully.' });
+    } catch (err) {
+      console.error('Error signing up admin:', err);
+      res.status(500).json({ message: 'Internal server error.' });
     }
 });
 
@@ -164,6 +198,34 @@ app.post('/book', async (req, res) => {
     }
 });
 
+app.get('/tour-info', async (req, res) => {
+    try {
+        // Count the total number of tours
+        const totalTours = await Tour.countDocuments();
+
+        // Fetch all users and calculate the total number of bookings
+        const users = await User.find().populate('booking');
+        const totalBookings = users.reduce((acc, user) => acc + user.booking.length, 0);
+
+        // Return the counts
+        return res.json({
+            totalTours,
+            totalBookings
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/users', async (req, res) => {
+    try {
+      const users = await User.find({ id: '2120' }); // Fetch users with id = 2120
+      res.json(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: 'Server Error' });
+    }
+  });
 
 app.get('/tours', async (req, res) => {
     try {
@@ -172,7 +234,7 @@ app.get('/tours', async (req, res) => {
         // Map through the tours to modify the photo field
         const toursWithImagePath = tours.map(tour => ({
             ...tour._doc, // Spread the original tour document
-            photo: `..\Backend\${tour.image}` // Update the photo path
+            photo: `${tour.image}` // Update the photo path
         }));
 
         res.json(toursWithImagePath);
@@ -220,7 +282,7 @@ app.post('/create', upload.single('image'), async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+        const imagePath = `uploads/${req.file.filename}`;
         const newTour = new Tour({
             title,
             city,
@@ -230,7 +292,7 @@ app.post('/create', upload.single('image'), async (req, res) => {
             maxGroupSize,
             desc,
             creator: user._id,
-            image: req.file.path, // Save the image path
+            image: imagePath, // Save the image path
         });
 
         await newTour.save();
@@ -288,6 +350,42 @@ app.post('/book', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+app.post('/adminLogin', async (req, res) => {
+    const { name, password } = req.body;
+  
+    if (!name || !password) {
+      return res.status(400).json({ message: 'Please provide both name and password' });
+    }
+  
+    try {
+      // Check if the admin already exists
+      const existingAdmin = await Admin.findOne({ id: '5150' });
+  
+      if (existingAdmin) {
+        return res.status(200).json({
+          message: 'Admin already registered',
+          id: existingAdmin.id
+        });
+      }
+  
+      // Create a new admin with the auto-assigned ID '5150'
+      const newAdmin = new Admin({
+        name,
+        password,
+        id: '5150' // Assign the static ID '5150'
+      });
+  
+      await newAdmin.save(); // Save the admin details in MongoDB
+  
+      return res.status(201).json({
+        message: 'Admin registered successfully',
+        id: newAdmin.id
+      });
+    } catch (error) {
+      return res.status(500).json({ message: 'An error occurred while processing your request' });
+    }
+  });
 
 app.listen(8000, () => {
     console.log("Server started on port 8000");
