@@ -46,15 +46,24 @@ export const Navbar = () => {
                         </NavLink>
                     ) : null}
                     {isAuthenticated && role === '2120' ? (
-                        <NavLink to="/book" activeClassName="active-link">
-                            <li>Book Tour</li>
-                        </NavLink>
-                    ) : null}
-                    {isAuthenticated ? (
                         <>
+                            <NavLink to="/book" activeClassName="active-link">
+                                <li>Book Tour</li>
+                            </NavLink>
                             <NavLink to="/profile" activeClassName="active-link">
                                 <li>Profile</li>
                             </NavLink>
+                        </>
+                    ) : null}
+                    {isAuthenticated && role === '8180' ? (
+                        <>
+                            <NavLink to="/Dashboard" activeClassName="active-link">
+                                <li>Dashboard</li>
+                            </NavLink>
+                        </>
+                    ) : null}
+                    {isAuthenticated ? (
+                        <>
                             <button onClick={handleLogout} className="logout-btn">
                                 Logout
                             </button>

@@ -7,7 +7,7 @@ const Booking = () => {
     const { username } = useSelector((state) => state.auth);
     const location = useLocation();
     const { tour } = location.state || {};
-    
+
     if (!tour) {
         return <div>No tour data available</div>;
     }
@@ -18,6 +18,9 @@ const Booking = () => {
     const [endDate, setEndDate] = React.useState('');
     const [adults, setAdults] = React.useState(1);
     const [children, setChildren] = React.useState(0);
+
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -110,6 +113,7 @@ const Booking = () => {
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
+                            min={today}  // Restrict to dates from today onwards
                             required
                         />
                     </label>
@@ -119,36 +123,38 @@ const Booking = () => {
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
+                            min={startDate || today}  // Ensure end date is after start date
                             required
                         />
                     </label>
                     <label>
-                        Number of Adults:
-                        <select
-                            value={adults}
-                            onChange={(e) => setAdults(parseInt(e.target.value))}
-                            required
-                        >
-                            {[...Array(maxGroupSize).keys()].map((num) => (
-                                <option key={num + 1} value={num + 1}>
-                                    {num + 1}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label>
-                        Number of Children:
-                        <select
-                            value={children}
-                            onChange={(e) => setChildren(parseInt(e.target.value))}
-                        >
-                            {[...Array(maxGroupSize).keys()].map((num) => (
-                                <option key={num} value={num}>
-                                    {num}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                Number of Adults:
+                <select
+                    value={adults}
+                    onChange={(e) => setAdults(parseInt(e.target.value))}
+                    required
+                >
+                    {[...Array(10).keys()].map((num) => (
+                        <option key={num + 1} value={num + 1}>
+                            {num + 1}
+                        </option>
+                    ))}
+                </select>
+                </label>
+                <label>
+                    Number of Children:
+                    <select
+                        value={children}
+                        onChange={(e) => setChildren(parseInt(e.target.value))}
+                    >
+                        {[...Array(10).keys()].map((num) => (
+                            <option key={num} value={num}>
+                                {num}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+
                     <button type="submit">Book Now</button>
                 </form>
             </div>

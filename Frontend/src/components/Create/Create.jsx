@@ -9,7 +9,6 @@ const Create = () => {
   const [address, setAddress] = useState('');
   const [distance, setDistance] = useState('');
   const [price, setPrice] = useState('');
-  const [maxGroupSize, setMaxGroupSize] = useState('');
   const [desc, setDesc] = useState('');
   const [image, setImage] = useState(null); // New state for image
   const [statusMessage, setStatusMessage] = useState('');
@@ -33,9 +32,6 @@ const Create = () => {
       case 'price':
         setPrice(value);
         break;
-      case 'maxGroupSize':
-        setMaxGroupSize(value);
-        break;
       case 'desc':
         setDesc(value);
         break;
@@ -57,7 +53,6 @@ const Create = () => {
     formData.append('address', address);
     formData.append('distance', distance);
     formData.append('price', price);
-    formData.append('maxGroupSize', maxGroupSize);
     formData.append('desc', desc);
     formData.append('username', username);
     if (image) {
@@ -79,7 +74,6 @@ const Create = () => {
         setAddress('');
         setDistance('');
         setPrice('');
-        setMaxGroupSize('');
         setDesc('');
         setImage(null); // Reset image state
       } else {
@@ -117,10 +111,6 @@ const Create = () => {
         <div>
           <label htmlFor="price">Price:</label>
           <input type="number" id="price" name="price" value={price} onChange={handleChange} required />
-        </div>
-        <div>
-          <label htmlFor="maxGroupSize">Max Group Size:</label>
-          <input type="number" id="maxGroupSize" name="maxGroupSize" value={maxGroupSize} onChange={handleChange} required />
         </div>
         <div>
           <label htmlFor="desc">Description:</label>

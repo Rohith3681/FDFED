@@ -5,9 +5,10 @@ import { useNavigate } from 'react-router-dom';
 
 export const Register = () => {
     const [name, setName] = useState('');
+    const [email, setEmail] = useState(''); // Add email state
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('user');
-    const [employeeId, setemployeeId] = useState('');
+    const [employeeId, setEmployeeId] = useState('');
     const [signedin, setSignedin] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,12 +19,12 @@ export const Register = () => {
         setLoading(true);
         setError('');
 
-        // Construct the user object for submission
         const newUser = {
             name,
+            email, // Include email in the user object
             password,
             role,
-            ...(role === 'employee' && { employeeId }) // Adjusted key name to match with backend
+            ...(role === 'employee' && { employeeId })
         };
 
         try {
@@ -37,9 +38,10 @@ export const Register = () => {
 
             if (res.ok) {
                 setName('');
+                setEmail(''); // Reset email field
                 setPassword('');
                 setRole('user');
-                setemployeeId('');
+                setEmployeeId('');
                 setSignedin(true);
                 navigate('/login');
             } else {
@@ -61,7 +63,9 @@ export const Register = () => {
         <div className="register-container">
             <div className="register-box">
                 <form onSubmit={handleSubmit} className="form-container">
-                    <h2 id='text' className="text-2xl mb-4 font-bold text-center">{signedin ? 'Registered Successfully !!!' : 'Create Account'}</h2>
+                    <h2 id='text' className="text-2xl mb-4 font-bold text-center">
+                        {signedin ? 'Registered Successfully !!!' : 'Create Account'}
+                    </h2>
 
                     {error && <p className="text-red-500">{error}</p>}
                     {loading && <p>Loading...</p>}
@@ -73,6 +77,18 @@ export const Register = () => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Name"
+                            className="input-field"
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <input
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)} // Email input
+                            placeholder="Email"
                             className="input-field"
                             required
                         />
@@ -109,7 +125,7 @@ export const Register = () => {
                                 type="number"
                                 id="employeeId"
                                 value={employeeId}
-                                onChange={(e) => setemployeeId(e.target.value)}
+                                onChange={(e) => setEmployeeId(e.target.value)}
                                 placeholder="Employee Number"
                                 className="input-field"
                                 required

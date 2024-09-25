@@ -11,6 +11,8 @@ import Tour from "./models/Tour.js";
 import Booking from "./models/Booking.js"
 import Admin from "./models/Admin.js";
 import multer from 'multer';
+import { getUserAndEmployeeCounts, getLoggedInNames } from './controllers/auth-controller.js';
+import userRoutes from './Routes/userRoutes.js';
 
 const MongoDBStore = mongoDBSession(session);
 
@@ -51,32 +53,40 @@ app.use(session({
 
 app.post('/register', async (req, res) => {
     try {
-        const { name, password, role, employeeId } = req.body;
-        console.log(role);
-        let id;
+        const { name, email, password, role, employeeId } = req.body;
 
-        // Assign ID based on role
+        // Email validation using regular expression
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).send("Invalid email format");
+        }
+
+        // Password validation - minimum 8 characters, at least one letter and one number
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@])[A-Za-z\d@]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(400).send("Password must be at least 8 characters long and include at least one letter and one number");
+        }
+
+        let id;
         if (role === 'user') {
-            id = '2120'; // Automatically assign 2120 for users
+            id = '2120';
         } else if (role === 'employee') {
-            // Validate the employeeId
             if (employeeId !== '8180') {
                 return res.status(400).send("Invalid ID for employee role");
             }
-            id = '8180'; // Assign 8180 if the employeeId is valid
+            id = '8180';
         } else {
             return res.status(400).send("Invalid role");
         }
 
-        // Create the new user object with appropriate fields
         const user = new User({
             name,
+            email, // Save the email in the database
             password,
-            id,  // '2120' for user, '8180' for employee
+            id,
             role,
             ...(role === 'employee' ? { booking: [] } : {}),
             ...(role === 'user' ? { ticket: [] } : {})
-            // booking and ticket fields will be initialized with defaults (empty arrays)
         });
 
         await user.save();
@@ -84,6 +94,35 @@ app.post('/register', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Error registering user');
+    }
+});
+
+app.post("/login", async (req, res) => {
+    try {
+        const { name, password } = req.body;
+        const user = await User.findOne({ name });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.password !== password) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        req.session.isAuth = true;
+        req.session.user = {
+            name: user.name,
+            role: user.id === ROLES['employee'] ? 'employee' : 'user'
+        };
+
+        res.status(200).json({ 
+            message: "Login successful",
+            role: user.id
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server error');
     }
 });
 
@@ -115,36 +154,6 @@ app.post('/adminSignup', async (req, res) => {
     }
 });
 
-
-app.post("/login", async (req, res) => {
-    try {
-        const { name, password } = req.body;
-        const user = await User.findOne({ name });
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        if (user.password !== password) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        req.session.isAuth = true;
-        req.session.user = {
-            name: user.name,
-            role: user.id === ROLES['employee'] ? 'employee' : 'user'
-        };
-
-        res.status(200).json({ 
-            message: "Login successful",
-            role: user.id
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send('Server error');
-    }
-});
-
 app.post('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -155,52 +164,10 @@ app.post('/logout', (req, res) => {
     });
 });
 
-app.post('/book', async (req, res) => {
-    try {
-        const { username, tourId, name, phone, startDate, endDate, adults, children } = req.body;
-        // Validate required fields
-        if (!username || !tourId || !name || !phone || !startDate || !endDate || !adults) {
-            return res.status(400).json({ message: 'Please fill all required fields' });
-        }
-        console.log(endDate)
-        // Create a new booking
-        const newBooking = new Booking({
-            name,
-            phone,
-            startDate,
-            endDate,
-            adults,
-            children,
-            tour: tourId, // Tour reference
-        });
-        
-        // Save the booking to the database
-        const savedBooking = await newBooking.save();
-        console.log(username)
-        // Update the user's bookings array by pushing the saved booking's ID
-        const user = await User.findOne({ name: username });
-        console.log(user)
-        if (user) {
-            user.booking.push(savedBooking._id); // Push the booking ID to 'booking' array
-            await user.save(); // Save the updated user document
-        }
-
-        console.log("hello")
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Send response with the saved booking
-        res.status(201).json({ message: 'Booking successful', booking: savedBooking });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
 app.get('/tour-info', async (req, res) => {
     try {
         // Count the total number of tours
+        const AdminRevenue = await Admin.find()
         const totalTours = await Tour.countDocuments();
 
         // Fetch all users and calculate the total number of bookings
@@ -216,6 +183,19 @@ app.get('/tour-info', async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 });
+
+app.get('/adminRevenue', async (req, res) => {
+    try {
+      const admin = await Admin.findOne({ id: '5150' }); // Fetch the admin with id "5150"
+      if (!admin) {
+        return res.status(404).json({ message: 'Admin not found' });
+      }
+      return res.json({ revenue: admin.revenue }); // Return the revenue
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  });
+  
 
 app.get('/users', async (req, res) => {
     try {
@@ -248,14 +228,34 @@ app.get('/tours', async (req, res) => {
 app.get('/user/profile/:username', async (req, res) => {
     try {
         const { username } = req.params;
-        // Find the user and populate the bookings array with the Tour documents
-        const user = await User.findOne({ name: username });
-        if(user.id == '2120') user.populate('ticket')
-
-        if(user.id === '8180') user.populate('booking')
+        const user = await User.findOne({ name: username })
+            .populate({
+                path: 'booking',
+                populate: {
+                    path: 'tour', // Assuming each booking has a reference to the tour
+                    model: 'Tour'
+                }
+            });
 
         if (user) {
-            res.json(user); // Send the user details, including populated bookings (tours)
+            const today = new Date();
+
+            const completedBookings = user.booking.filter(
+                (booking) => new Date(booking.endDate) < today
+            );
+            const ongoingBookings = user.booking.filter(
+                (booking) => new Date(booking.startDate) <= today && new Date(booking.endDate) >= today
+            );
+            const upcomingBookings = user.booking.filter(
+                (booking) => new Date(booking.startDate) > today
+            );
+
+            res.json({
+                user: user.name,
+                completedBookings,
+                ongoingBookings,
+                upcomingBookings,
+            });
         } else {
             res.status(404).json({ error: 'User not found' });
         }
@@ -265,6 +265,8 @@ app.get('/user/profile/:username', async (req, res) => {
     }
 });
 
+
+
 app.post('/create', upload.single('image'), async (req, res) => {
     const {
         title,
@@ -272,7 +274,6 @@ app.post('/create', upload.single('image'), async (req, res) => {
         address,
         distance,
         price,
-        maxGroupSize,
         desc,
         username,
     } = req.body;
@@ -282,6 +283,7 @@ app.post('/create', upload.single('image'), async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+
         const imagePath = `uploads/${req.file.filename}`;
         const newTour = new Tour({
             title,
@@ -289,10 +291,11 @@ app.post('/create', upload.single('image'), async (req, res) => {
             address,
             distance,
             price,
-            maxGroupSize,
             desc,
             creator: user._id,
-            image: imagePath, // Save the image path
+            image: imagePath,
+            count: 0,
+            bookedBy: []  // Initially, no one has booked the tour
         });
 
         await newTour.save();
@@ -309,17 +312,23 @@ app.post('/create', upload.single('image'), async (req, res) => {
     }
 });
 
-
 app.post('/book', async (req, res) => {
     try {
-        const { userId, tourId, name, phone, startDate, endDate, adults, children } = req.body;
+        const { username, tourId, name, phone, startDate, endDate, adults, children } = req.body;
 
-        // Validate required fields
-        if (!userId || !tourId || !name || !phone || !startDate || !endDate || !adults) {
+        if (!username || !tourId || !name || !phone || !startDate || !endDate || !adults) {
             return res.status(400).json({ message: 'Please fill all required fields' });
         }
 
-        // Create a new booking
+        const tour = await Tour.findById(tourId);
+        if (!tour) {
+            return res.status(404).json({ message: 'Tour not found' });
+        }
+
+        const totalCost = (tour.price * adults) + (tour.price * children);
+        const adminShare = totalCost * 0.1; // 10% of the total cost for admin
+        const employeeShare = totalCost; // Complete amount for the employee
+
         const newBooking = new Booking({
             name,
             phone,
@@ -327,29 +336,79 @@ app.post('/book', async (req, res) => {
             endDate,
             adults,
             children,
-            tour: mongoose.Types.ObjectId(tourId),
+            tour: tourId,
+            cost: totalCost, // Save the 10% cost in the booking
         });
 
-        // Save the booking to the database
-        await Booking.save();
+        const savedBooking = await newBooking.save();
 
-        // Update the user's bookings array
-        const user = await User.findByIdAndUpdate(
-            userId,
-            { $push: { bookings: savedBooking._id } },
-            { new: true } // Return the updated user document
+        const user = await User.findOneAndUpdate(
+            { name: username },
+            { $push: { booking: savedBooking._id } },
+            { new: true }
         );
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        const updatedTour = await Tour.findById(tourId).populate('creator'); // Assuming 'creator' field in Tour references the employee
+        if (!updatedTour) {
+            return res.status(404).json({ message: 'Tour not found' });
+        }
+
+        const admin = await Admin.findOne(); // Assuming there's only one admin or modify according to your needs
+
+        // Update Admin's revenue (10% of total cost)
+        await Admin.findOneAndUpdate(
+            { _id: admin._id }, // Update the correct admin
+            { $inc: { revenue: adminShare } }
+        );
+
+        // Update Employee's revenue (full amount)
+        if (updatedTour.creator) {
+            await User.findOneAndUpdate(
+                { _id: updatedTour.creator },
+                { $inc: { revenue: employeeShare } }
+            );
+        }
+
         res.status(201).json({ message: 'Booking successful', booking: savedBooking });
     } catch (error) {
-        console.error(error);
+        console.error('Error during booking:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+app.get('/dashboard/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        // Find the user (employee) by their username
+        const user = await User.findOne({ name: username, role: 'employee' });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found or not an employee' });
+        }
+
+        // Find all tours created by this employee and populate bookedBy field
+        const tours = await Tour.find({ creator: user._id })
+            .populate('bookedBy', 'name') // Populate bookedBy with user names
+            .exec();
+
+        console.log(tours); // Log the fetched tours for debugging
+
+        res.status(200).json({
+            username: user.name, // Send the employee's username
+            tours, // Send the list of tours created by the employee
+        });
+    } catch (error) {
+        console.error('Error fetching tours:', error);
+        res.status(500).json({ message: 'Error fetching tours' });
+    }
+});
+
+
+
 
 app.post('/adminLogin', async (req, res) => {
     const { name, password } = req.body;
@@ -368,7 +427,7 @@ app.post('/adminLogin', async (req, res) => {
           id: existingAdmin.id
         });
       }
-  
+      
       // Create a new admin with the auto-assigned ID '5150'
       const newAdmin = new Admin({
         name,
@@ -386,6 +445,12 @@ app.post('/adminLogin', async (req, res) => {
       return res.status(500).json({ message: 'An error occurred while processing your request' });
     }
   });
+
+  app.get('/api/user-employee-counts', getUserAndEmployeeCounts);
+
+app.get('/api/loggedin-names', getLoggedInNames);
+
+app.use('/api', userRoutes);
 
 app.listen(8000, () => {
     console.log("Server started on port 8000");

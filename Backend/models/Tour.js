@@ -22,10 +22,6 @@ const tourSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    maxGroupSize: {
-        type: Number,
-        required: true
-    },
     desc: {
         type: String,
         required: true
@@ -41,6 +37,16 @@ const tourSchema = new mongoose.Schema({
     },
     image: {
         type: String,
+        required: true
+    },
+    count: {
+        type: Number,
+        required: true
+    },
+    bookedBy: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'User',
+        default: [],
         required: true
     }
 });

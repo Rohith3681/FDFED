@@ -35,7 +35,7 @@ const Book = () => {
         <div className="tours-container">
             {tours.length > 0 ? (
                 tours.map((tour) => (
-                    <Display key={tour._id} tour={tour} /> // Pass the entire tour object
+                    <Display key={tour._id} tour={tour} showReviewButton={1} showBookButton={1}/> // Pass the entire tour object
                 ))
             ) : (
                 <p>No tours available</p>

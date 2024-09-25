@@ -14,6 +14,11 @@ const schema = new mongoose.Schema({
         required: true,
         default: "5150"
     },
+    revenue: {
+        type: Number,
+        required: true,
+        default: 0
+    },
 });
 
 export default mongoose.model("Admin", schema);

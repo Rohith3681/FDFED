@@ -35,16 +35,54 @@ const Profile = () => {
         <p className="error-message">{error}</p>
       ) : userDetails ? (
         <div className="bookings-details">
-          <h2>Username: {userDetails.name}</h2>
-          <h3>Booked Tours:</h3>
-          {userDetails.bookings && userDetails.bookings.length > 0 ? ( // Safe check here
+          <h2>Username: {userDetails.user}</h2>
+
+          <h3>Ongoing Bookings:</h3>
+          {userDetails.ongoingBookings.length > 0 ? (
             <div className="tour-cards-container">
-              {userDetails.bookings.map((tour) => (
-                <Display key={tour._id} tour={tour} />
+              {userDetails.ongoingBookings.map((booking) => (
+                <Display 
+                  key={booking._id} 
+                  tour={booking.tour} // Access the tour details
+                  showReviewButton={1} 
+                  showBookButton={0} 
+                />
               ))}
             </div>
           ) : (
-            <p>No bookings found.</p>
+            <p>No ongoing bookings found.</p>
+          )}
+
+          <h3>Upcoming Bookings:</h3>
+          {userDetails.upcomingBookings.length > 0 ? (
+            <div className="tour-cards-container">
+              {userDetails.upcomingBookings.map((booking) => (
+                <Display 
+                  key={booking._id} 
+                  tour={booking.tour} // Access the tour details
+                  showReviewButton={0} 
+                  showBookButton={0} 
+                />
+              ))}
+            </div>
+          ) : (
+            <p>No upcoming bookings found.</p>
+          )}
+
+          <h3>Completed Bookings:</h3>
+          {userDetails.completedBookings.length > 0 ? (
+            <div className="tour-cards-container">
+              {userDetails.completedBookings.map((booking) => (
+                <Display 
+                  key={booking._id} 
+                  tour={booking.tour} // Access the tour details
+                  showReviewButton={1} 
+                  showBookButton={1} 
+                />
+              ))}
+            </div>
+          ) : (
+            <p>No completed bookings found.</p>
           )}
         </div>
       ) : (

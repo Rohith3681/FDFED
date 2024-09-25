@@ -1,0 +1,17 @@
+.graph1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 20px;
+}
+
+.graph2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 20px;
+}
+
+.graph1line {
+    margin-top: 10px;
+}

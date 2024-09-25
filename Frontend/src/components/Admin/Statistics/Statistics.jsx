@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Chart } from 'chart.js/auto';
+import Revenue from '../Revenue/Revenue';
 
 const Statistics = () => {
   const [statisticsData, setStatisticsData] = useState(null);
@@ -49,6 +50,7 @@ const Statistics = () => {
 
   return (
     <main className="maincontainer">
+      <Revenue />
       <h1>Statistics</h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div style={{ textAlign: 'center' }}><h2 style={{ color: '#008080' }}>Statistics</h2></div>

@@ -5,6 +5,11 @@ const schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
     password: {
         type: String,
         required: true
@@ -15,40 +20,49 @@ const schema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["employee", "user"], // Role can be 'employee' or 'user'
+        enum: ["employee", "user"],
         required: true
     },
-    booking: {
+    tour: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Tour',
         default: [],
         validate: {
             validator: function () {
-                // Validate booking only if the role is 'employee'
                 return this.role === 'employee';
             },
             message: 'Only employees can have bookings.'
         }
     },
-    ticket: {
+    booking: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Booking',
         default: [],
         validate: {
             validator: function () {
-                // Validate ticket only if the role is 'user'
                 return this.role === 'user';
             },
             message: 'Only users can have tickets.'
+        }
+    },
+    revenue: {
+        type: Number,
+        default: 0,
+        validate: {
+            validator: function () {
+                return this.role === 'employee';
+            },
+            message: 'Revenue can only be set for employees.'
         }
     }
 });
 
 schema.pre('validate', function (next) {
-    if(this.role === 'user'){
+    if (this.role === 'user') {
+        this.tour = undefined;
+        this.revenue = undefined;
+    } else if (this.role === 'employee') {
         this.booking = undefined;
-    }else if (this.role === 'employee'){
-        this.ticket = undefined;
     }
     next();
 });

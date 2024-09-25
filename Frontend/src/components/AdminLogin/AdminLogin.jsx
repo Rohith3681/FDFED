@@ -37,7 +37,7 @@ const Admin = () => {
         setPassword('');
 
         // Navigate to /Admin route
-        navigate('/Admin');
+        navigate(`/Admin/${username}`);
       } else {
         setError(result.message || 'Login failed');
         setSuccess('');

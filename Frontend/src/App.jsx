@@ -4,7 +4,7 @@ import { Provider, useSelector } from 'react-redux';
 import store from './app/store';
 import { Navbar } from './components/Navbar/Navbar';
 import Home from './pages/Home/Home';
-import { About } from './pages/About';
+import { About } from './pages/About/About';
 import { Login } from './components/Login/Login';
 import { Register } from './components/Register/Register';
 import SearchResults from './components/SearchResults/SearchResults';
@@ -20,6 +20,8 @@ import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import Statistics from './components/Admin/Statistics/Statistics';
 import Customers from './components/Admin/Customers/Customers';
 import Tours from './components/Admin/Tours/Tours';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Dashboard1 from './components/LoginStatus/LoginStatus';
 
 const AppRoutes = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -113,6 +115,18 @@ const AppRoutes = () => {
       ),
     },
     {
+      path: "/dashboard",
+      element: isAuthenticated && role == '8180'? (
+        <>
+          {/* <Navbar /> */}
+          <Dashboard />
+          <Footer />
+        </>
+      ) : (
+        <Navigate to="/login" />
+      ),
+    },
+    {
       path: "/create",
       element: isAuthenticated ? (
         <>
@@ -125,7 +139,7 @@ const AppRoutes = () => {
       ),
     },
     {
-      path: "/Admin",
+      path: "/Admin/:username",
       element: isAuthenticated && role == '5150'? (
         <>
           <AdminDashboard />
@@ -158,7 +172,7 @@ const AppRoutes = () => {
       ),
     },
     {
-      path: '/statistics',
+      path: '/statistics/:username',
       element: isAuthenticated && role === '5150' ? (
         <div className="dashboard-container">
           <AdminDashboard />
@@ -205,6 +219,16 @@ const AppRoutes = () => {
         <>
           <Navbar />
           <Home />
+          <Footer />
+        </>
+      ),
+    },
+    {
+      path: "/dashboard1",
+      element: (
+        <>
+          {/* <Navbar/> */}
+          <Dashboard1 />
           <Footer />
         </>
       ),
