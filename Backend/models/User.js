@@ -18,6 +18,10 @@ const schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    isLoggedIn: {
+        type: Boolean,
+        default: false
+    },
     role: {
         type: String,
         enum: ["employee", "user"],
@@ -28,7 +32,7 @@ const schema = new mongoose.Schema({
         ref: 'Tour',
         default: [],
         validate: {
-            validator: function () {
+            validator: function() {
                 return this.role === 'employee';
             },
             message: 'Only employees can have bookings.'
@@ -39,7 +43,7 @@ const schema = new mongoose.Schema({
         ref: 'Booking',
         default: [],
         validate: {
-            validator: function () {
+            validator: function() {
                 return this.role === 'user';
             },
             message: 'Only users can have tickets.'
@@ -49,7 +53,7 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0,
         validate: {
-            validator: function () {
+            validator: function() {
                 return this.role === 'employee';
             },
             message: 'Revenue can only be set for employees.'
@@ -57,7 +61,7 @@ const schema = new mongoose.Schema({
     }
 });
 
-schema.pre('validate', function (next) {
+schema.pre('validate', function(next) {
     if (this.role === 'user') {
         this.tour = undefined;
         this.revenue = undefined;

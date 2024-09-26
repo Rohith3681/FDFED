@@ -14,7 +14,7 @@ const TourCard = ({ tour }) => {
     const navigate = useNavigate();
 
     const handleNavigation = () => {
-        navigate(`/booking/${id}`, { state: { tour } });
+        navigate(`/booking`, { state: { tour } });
     };
 
     return (
@@ -39,7 +39,7 @@ const TourCard = ({ tour }) => {
                         )}>
                             <i className="ri-map-pin-line"></i>{city}
                         </span>
-                        <span className={classNames(
+                        {/* <span className={classNames(
                             styles.tour_rating,
                             styles['d-flex'],
                             styles['align-items-center'],
@@ -47,7 +47,7 @@ const TourCard = ({ tour }) => {
                         )}>
                             <i className="ri-star-fill"></i>{avgRating ? avgRating : "Not Rated"}
                             {totalRating > 0 && (<span>({reviews.length})</span>)}
-                        </span>
+                        </span> */}
                     </div>
 
                     <h5 

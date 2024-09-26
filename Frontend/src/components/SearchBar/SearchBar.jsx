@@ -7,8 +7,18 @@ export const SearchBar = () => {
   const [location, setLocation] = useState('');
   const navigate = useNavigate();
 
-  const handleSearch = () => {
-    navigate(`/results?location=${location.trim()}`);
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/tours/search/${location.trim()}`);
+      const data = await response.json();
+      if (response.ok) {
+        navigate('/results', { state: { searchResults: data } });
+      } else {
+        console.error(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Error fetching tours:', error);
+    }
   };
 
   return (
@@ -17,7 +27,7 @@ export const SearchBar = () => {
         <h2 className="search-heading">Find Your Next Adventure</h2>
         <p className="search-subheading">
           <b>"Unleash Your Wanderlust"</b><br />
-          Searching for your next adventure is more than just finding a destination; it’s about discovering new experiences that will stay with you forever. Picture yourself exploring vibrant markets, hiking through breathtaking landscapes, or relaxing on sun-kissed beaches. Whether you're seeking a thrilling escapade or a peaceful retreat, the world is filled with hidden gems waiting to be explored. Dive into our collection of unforgettable journeys and let your imagination soar. Your next great adventure is just a search away—let’s embark on this exciting quest together!
+          Searching for your next adventure is more than just finding a destination; it’s about discovering new experiences that will stay with you forever.
         </p>
         <div className="search-bar">
           <div className="input-wrapper">
@@ -43,4 +53,4 @@ export const SearchBar = () => {
       </div>
     </div>
   );
-}
+};

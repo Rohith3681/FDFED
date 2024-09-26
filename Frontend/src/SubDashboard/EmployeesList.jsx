@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import './EmployeesList.css'; 
 
 const EmployeesList = () => {
     const [employees, setEmployees] = useState([]);
     const [editMode, setEditMode] = useState(null); // Track which employee is being edited
-    const [editEmployeeData, setEditEmployeeData] = useState({ name: '' }); // Data for editing employee (name only)
+    const [editEmployeeData, setEditEmployeeData] = useState({ name: '', email: '' }); // Data for editing employee (name and email)
 
     useEffect(() => {
         fetchEmployees();
@@ -41,7 +42,7 @@ const EmployeesList = () => {
     const handleEdit = (id) => {
         const employee = employees.find(employee => employee._id === id);
         setEditMode(id); // Set employee in edit mode
-        setEditEmployeeData({ name: employee.name }); // Pre-fill form with employee's name
+        setEditEmployeeData({ name: employee.name, email: employee.email }); // Pre-fill form with employee's name and email
     };
 
     // Handle employee update
@@ -66,12 +67,14 @@ const EmployeesList = () => {
     };
 
     return (
-        <div>
+        <div className="employees-list">
             <h1>Employees List</h1>
             <table>
                 <thead>
                     <tr>
                         <th>Employee Name</th>
+                        <th>Email</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -92,6 +95,17 @@ const EmployeesList = () => {
                                 </td>
                                 <td>
                                     {editMode === employee._id ? (
+                                        <input
+                                            type="email"
+                                            value={editEmployeeData.email}
+                                            onChange={(e) => setEditEmployeeData({ ...editEmployeeData, email: e.target.value })}
+                                        />
+                                    ) : (
+                                        employee.email
+                                    )}
+                                </td>
+                                <td>
+                                    {editMode === employee._id ? (
                                         <>
                                             <button onClick={() => handleUpdate(employee._id)}>Save</button>
                                             <button onClick={() => setEditMode(null)}>Cancel</button>
@@ -99,7 +113,7 @@ const EmployeesList = () => {
                                     ) : (
                                         <>
                                             <button onClick={() => handleEdit(employee._id)}>Edit</button>
-                                            <button onClick={() => handleDelete(employee._id)}>Delete</button>
+                                            <button className="delete-btn" onClick={() => handleDelete(employee._id)}>Delete</button>
                                         </>
                                     )}
                                 </td>

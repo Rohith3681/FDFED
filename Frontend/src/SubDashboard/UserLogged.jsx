@@ -40,12 +40,15 @@ const UserLogged = () => {
 
     return (
         <div>
+            <h1>LOGIN STATUS</h1>
+            <h2>Graph For No Of User's Logged vs Time</h2>
+
             {/* Logged-in Users Graph */}
             <div className="graph1">
-                <ResponsiveContainer align="center" width="80%" height={300}>
+                <ResponsiveContainer align="center" width="80%" height={500}>
                     <LineChart data={loginData}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="time" label={{ value: 'Time', position: 'bottom' }} />
+                        <XAxis dataKey="time" label={{ value: '', position: 'bottom' }} />
                         <YAxis label={{ value: 'Number of Users', angle: -90, position: 'insideLeft' }} ticks={generateTicks(maxUsers)} />
                         <Tooltip />
                         <Legend />
@@ -75,3 +78,4 @@ const UserLogged = () => {
 };
 
 export default UserLogged;
+

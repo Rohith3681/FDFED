@@ -24,6 +24,7 @@ const AdminDashboard = () => {
           <button className="navitem" onClick={() => navigate(`/customers`)}>Customers</button>
           <button className="navitem" onClick={() => navigate(`/tours`)}>Tours</button>
           <button className="navitem" onClick={() => navigate(`/AddAdmin`)}>Add Admin</button>
+          <button className="navitem" onClick={() => navigate(`/recent-bookings`)}>Recent 3 Months Bookings Records</button>
         </div>
       </div>
       <div className="logoutButton" onClick={handleLogout}>

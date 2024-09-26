@@ -21,6 +21,7 @@ import Statistics from './components/Admin/Statistics/Statistics';
 import Customers from './components/Admin/Customers/Customers';
 import Tours from './components/Admin/Tours/Tours';
 import Dashboard from './pages/Dashboard/Dashboard';
+import RecentBookings from './pages/RecentBookings/RecentBookings';
 import Dashboard1 from './components/LoginStatus/LoginStatus';
 
 const AppRoutes = () => {
@@ -40,7 +41,13 @@ const AppRoutes = () => {
     },
     {
       path: "/login",
-      element: (
+      element: isAuthenticated ? (
+        <>
+          <Navbar />
+          <Home />
+          <Footer />
+        </>
+      ) : (
         <>
           <Navbar />
           <Login />
@@ -50,7 +57,12 @@ const AppRoutes = () => {
     },
     {
       path: "/adminLogin",
-      element: (
+      element: isAuthenticated ? (
+        <>
+          <AdminDashboard />
+          <Footer />
+        </>
+      ) : (
         <>
           <Navbar />
           <Admin />
@@ -80,19 +92,17 @@ const AppRoutes = () => {
     },
     {
       path: "/results",
-      element: isAuthenticated ? (
+      element: (
         <>
           <Navbar />
           <SearchResults />
           <Footer />
         </>
-      ) : (
-        <Navigate to="/login" />
-      ),
+      )
     },
     {
       path: "/booking",
-      element: isAuthenticated ? (
+      element: isAuthenticated && role == '2120'? (
         <>
           {/* <Navbar /> */}
           <Booking />
@@ -197,7 +207,7 @@ const AppRoutes = () => {
         <>
           <div className="dashboard-container">
             <AdminDashboard />
-            <Tours />
+            <Tours role = {5150}/>
           </div>
         </>
       ) : null
@@ -209,6 +219,17 @@ const AppRoutes = () => {
           <div className="dashboard-container">
             <AdminDashboard />
             <AddAdmin />
+          </div>
+        </>
+      ) : null
+    },
+    {
+      path: '/recent-bookings',
+      element: isAuthenticated && role === '5150' ?  (
+        <>
+         <div className="dashboard-container">
+            <AdminDashboard />
+            <RecentBookings />
           </div>
         </>
       ) : null
@@ -229,7 +250,6 @@ const AppRoutes = () => {
         <>
           {/* <Navbar/> */}
           <Dashboard1 />
-          <Footer />
         </>
       ),
     },

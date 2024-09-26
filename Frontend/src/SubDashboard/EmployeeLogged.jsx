@@ -40,12 +40,13 @@ const EmployeeLogged = () => {
 
     return (
         <div>
+            <h2>Graph For No Of Employee's Logged vs Time</h2>
             {/* Logged-in Employees Graph */}
             <div className="graph2">
-                <ResponsiveContainer align="center" width="80%" height={300}>
+                <ResponsiveContainer align="center" width="80%" height={500}>
                     <LineChart data={employeeData}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="time" label={{ value: 'Time', position: 'bottom' }} />
+                        <XAxis dataKey="time" label={{ value: '', position: 'bottom' }} />
                         <YAxis label={{ value: 'Number of Employees', angle: -90, position: 'insideLeft' }} ticks={generateTicks(maxEmployees)} />
                         <Tooltip />
                         <Legend />

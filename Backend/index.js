@@ -97,7 +97,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", async(req, res) => {
     try {
         const { name, password } = req.body;
         const user = await User.findOne({ name });
@@ -110,13 +110,21 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        // Set isLoggedIn to true when the user successfully logs in
+        user.isLoggedIn = true;
+
+        // Save the updated user document
+        await user.save();
+
+        // Set session details for logged-in users
         req.session.isAuth = true;
         req.session.user = {
             name: user.name,
-            role: user.id === ROLES['employee'] ? 'employee' : 'user'
+            role: user.id === ROLES['employee'] ? 'employee' : 'user',
+            id: user.id // Store the user id as well
         };
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: "Login successful",
             role: user.id
         });
@@ -154,7 +162,18 @@ app.post('/adminSignup', async (req, res) => {
     }
 });
 
-app.post('/logout', (req, res) => {
+// Logout endpoint
+app.post('/logout', async(req, res) => {
+    if (!req.session.user) {
+        return res.status(400).json({ message: 'No user is logged in' });
+    }
+
+    const user = await User.findOne({ name: req.session.user.name });
+    if (user) {
+        user.isLoggedIn = false; // Mark user as logged out
+        await user.save();
+    }
+
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).send('Failed to log out');
@@ -326,8 +345,8 @@ app.post('/book', async (req, res) => {
         }
 
         const totalCost = (tour.price * adults) + (tour.price * children);
-        const adminShare = totalCost * 0.1; // 10% of the total cost for admin
-        const employeeShare = totalCost; // Complete amount for the employee
+        const adminShare = totalCost * 0.1;
+        const employeeShare = totalCost;
 
         const newBooking = new Booking({
             name,
@@ -337,7 +356,7 @@ app.post('/book', async (req, res) => {
             adults,
             children,
             tour: tourId,
-            cost: totalCost, // Save the 10% cost in the booking
+            cost: totalCost,
         });
 
         const savedBooking = await newBooking.save();
@@ -352,26 +371,36 @@ app.post('/book', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const updatedTour = await Tour.findById(tourId).populate('creator'); // Assuming 'creator' field in Tour references the employee
+        const updatedTour = await Tour.findById(tourId).populate('creator');
         if (!updatedTour) {
             return res.status(404).json({ message: 'Tour not found' });
         }
 
-        const admin = await Admin.findOne(); // Assuming there's only one admin or modify according to your needs
-
-        // Update Admin's revenue (10% of total cost)
-        await Admin.findOneAndUpdate(
-            { _id: admin._id }, // Update the correct admin
-            { $inc: { revenue: adminShare } }
+        // Push the user's _id into the bookedBy array of the tour
+        await Tour.findByIdAndUpdate(
+            tourId,
+            { $push: { bookedBy: user._id } }
         );
 
-        // Update Employee's revenue (full amount)
+        const admin = await Admin.findOne();
+        if (!admin) {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+
+        await Admin.findByIdAndUpdate(
+            admin._id,
+            { $inc: { revenue: adminShare } }
+        );
+    
         if (updatedTour.creator) {
-            await User.findOneAndUpdate(
-                { _id: updatedTour.creator },
+            await User.findByIdAndUpdate(
+                updatedTour.creator,
                 { $inc: { revenue: employeeShare } }
             );
         }
+
+        const user12 = await User.findById(updatedTour.creator);
+        console.log(user12.revenue)
 
         res.status(201).json({ message: 'Booking successful', booking: savedBooking });
     } catch (error) {
@@ -380,34 +409,38 @@ app.post('/book', async (req, res) => {
     }
 });
 
+
 app.get('/dashboard/:username', async (req, res) => {
     try {
         const { username } = req.params;
 
-        // Find the user (employee) by their username
         const user = await User.findOne({ name: username, role: 'employee' });
         if (!user) {
             return res.status(404).json({ message: 'User not found or not an employee' });
         }
 
-        // Find all tours created by this employee and populate bookedBy field
         const tours = await Tour.find({ creator: user._id })
             .populate('bookedBy', 'name') // Populate bookedBy with user names
             .exec();
 
         console.log(tours); // Log the fetched tours for debugging
 
+        // Create an array to hold booked user names for each tour
+        const toursWithBookedUserNames = tours.map(tour => ({
+            ...tour.toObject(), // Convert tour to a plain object
+            bookedByNames: tour.bookedBy.map(user => user.name) // Extract user names from bookedBy
+        }));
+
         res.status(200).json({
-            username: user.name, // Send the employee's username
-            tours, // Send the list of tours created by the employee
+            username: user.name,
+            revenue: user.revenue,
+            tours: toursWithBookedUserNames, // Return tours with booked user names
         });
     } catch (error) {
         console.error('Error fetching tours:', error);
         res.status(500).json({ message: 'Error fetching tours' });
     }
 });
-
-
 
 
 app.post('/adminLogin', async (req, res) => {
@@ -419,7 +452,7 @@ app.post('/adminLogin', async (req, res) => {
   
     try {
       // Check if the admin already exists
-      const existingAdmin = await Admin.findOne({ id: '5150' });
+      const existingAdmin = await Admin.findOne({ name: name, password: password });
   
       if (existingAdmin) {
         return res.status(200).json({
@@ -446,7 +479,105 @@ app.post('/adminLogin', async (req, res) => {
     }
   });
 
-  app.get('/api/user-employee-counts', getUserAndEmployeeCounts);
+  // Route to fetch bookings from the last 3 months
+app.get('/admin/recent-bookings', async(req, res) => {
+    try {
+        // Get the date three months ago from today
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+        // Find all bookings created in the last 3 months
+        const recentBookings = await Booking.find({
+                createdAt: { $gte: threeMonthsAgo }
+            })
+            .populate('tour', 'title') // Populate the tour field with the tour's title
+            .exec();
+
+        console.log(recentBookings); // Log the fetched bookings for debugging
+
+        res.status(200).json({
+            recentBookings, // Send the list of recent bookings
+        });
+    } catch (error) {
+        console.error('Error fetching recent bookings:', error);
+        res.status(500).json({ message: 'Error fetching recent bookings' });
+    }
+});
+
+app.put( '/updateTours/:id',async(req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedTour = await Tour.findByIdAndUpdate(id, req.body, { new: true });
+        if (!updatedTour) {
+            return res.status(404).json({ message: 'Tour not found' });
+        }
+        res.status(200).json({ message: 'Tour updated successfully', updatedTour });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to update tour' });
+    }
+});
+
+app.delete('/deleteTours/:id', async(req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedTour = await Tour.findByIdAndDelete(id);
+        if (!deletedTour) {
+            return res.status(404).json({ message: 'Tour not found' });
+        }
+        res.status(200).json({ message: 'Tour deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to delete tour' });
+    }
+});
+
+app.post('/tours/:id/review', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { review } = req.body;
+
+        const tour = await Tour.findById(id);
+        if (!tour) {
+            return res.status(404).json({ message: 'Tour not found' });
+        }
+
+        // Add the review to the reviews array
+        tour.reviews.push(review);
+        await tour.save();
+
+        res.status(200).json({ message: 'Review added successfully', tour });
+    } catch (error) {
+        console.error('Error adding review:', error);
+        res.status(500).json({ message: 'Failed to add review' });
+    }
+});
+
+app.get('/tours/:id', async (req, res) => {
+    try {
+        const tour = await Tour.findById(req.params.id);
+        if (!tour) {
+            return res.status(404).json({ message: 'Tour not found' });
+        }
+        res.json(tour); // Send the entire tour object, including reviews
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching tour' });
+    }
+});
+
+app.get('/tours/search/:location', async (req, res) => {
+    const { location } = req.params; // Use req.params to get the location
+  
+    try {
+      const tours = await Tour.find({ city: { $regex: location, $options: 'i' } });
+      res.json(tours);
+    } catch (error) {
+      res.status(500).json({ message: 'Error searching for tours' });
+    }
+  });
+  
+
+app.get('/api/user-employee-counts', getUserAndEmployeeCounts);
 
 app.get('/api/loggedin-names', getLoggedInNames);
 

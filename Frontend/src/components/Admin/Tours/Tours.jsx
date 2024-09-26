@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Display from '../../../shared/Display';
 import styles from './Tours.module.css'; // Create this CSS file for styling
 
-const Tours = () => {
+const Tours = ({role}) => {
   const [toursData, setToursData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
   useEffect(() => {
     const fetchTours = async () => {
       try {
@@ -48,7 +47,7 @@ const Tours = () => {
       <div className={styles.toursContainer}>
         {filteredTours.length > 0 ? (
           filteredTours.map((tour) => (
-            <Display key={tour._id} tour={tour} /> // Use the Display component
+            <Display key={tour._id} tour={tour} showReviewButton={0} showBookButton={0} showUpdateButton={role === 5150 ? 1 : 0}/> // Use the Display component
           ))
         ) : (
           <div>No tours found</div>

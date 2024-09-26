@@ -50,13 +50,13 @@ const Admin = () => {
 
   return (
     <div className="admin-container">
-      <h1 className="admin-title">Admin Page</h1>
       <form onSubmit={handleLogin} className="admin-form">
+      <h1 className="admin-title">Admin Login</h1>
         <div className="form-group">
-          <label htmlFor="username" className="form-label">Username:</label>
           <input
             type="text"
             id="username"
+            placeholder='Admin UserName'
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="form-input"
@@ -64,10 +64,10 @@ const Admin = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password" className="form-label">Password:</label>
           <input
             type="password"
             id="password"
+            placeholder='Password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="form-input"

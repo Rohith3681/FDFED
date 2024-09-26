@@ -32,8 +32,7 @@ nav {
   list-style: none;
 }
 
-.nav-links a,
-.logout-button {
+.nav-links a {
   color: rgb(239, 119, 71);
   text-decoration: none;
   margin: 0 1rem;
@@ -43,8 +42,7 @@ nav {
   transition: color 0.3s ease-in-out;
 }
 
-.nav-links a::before,
-.logout-button::before {
+.nav-links a::before {
   content: "";
   position: absolute;
   bottom: -5px;
@@ -55,24 +53,33 @@ nav {
   transition: width 0.3s ease-in-out;
 }
 
-.nav-links a:hover::before,
-.logout-button:hover::before {
+.nav-links a:hover::before {
   width: 100%;
 }
 
-.nav-links a:hover,
-.logout-button:hover {
+.nav-links a:hover {
   color: rgb(239, 119, 71);
 }
 
-.logout-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
+.span {
+  margin: 0 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  position: relative;
+  transition: color 0.3s ease-in-out;
+  align-items: center;
+  list-style: none;
+  background-color: rgb(239, 119, 71);
+  /* Your desired color */
+  color: white;
+  padding: 10px 20px;
+  display: inline-block;
+  border-radius: 5px;
 }
 
+
 /* Adjust the body to account for the fixed navbar */
+
 body {
   padding-top: 60px;
 }

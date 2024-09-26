@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import './UsersList.css'
 
 const UsersList = () => {
     const [users, setUsers] = useState([]);
     const [editMode, setEditMode] = useState(null); // Track which user is being edited
-    const [editUserData, setEditUserData] = useState({ name: '' }); // Data for editing user (name only)
+    const [editUserData, setEditUserData] = useState({ name: '', email: '' }); // Data for editing user (name and email)
 
     useEffect(() => {
         fetchUsers();
@@ -41,7 +42,7 @@ const UsersList = () => {
     const handleEdit = (id) => {
         const user = users.find(user => user._id === id);
         setEditMode(id); // Set user in edit mode
-        setEditUserData({ name: user.name }); // Pre-fill form with user's name
+        setEditUserData({ name: user.name, email: user.email }); // Pre-fill form with user's name and email
     };
 
     // Handle user update
@@ -72,6 +73,7 @@ const UsersList = () => {
                 <thead>
                     <tr>
                         <th>Username</th>
+                        <th>Email</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -93,6 +95,17 @@ const UsersList = () => {
                                 </td>
                                 <td>
                                     {editMode === user._id ? (
+                                        <input
+                                            type="email"
+                                            value={editUserData.email}
+                                            onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
+                                        />
+                                    ) : (
+                                        user.email
+                                    )}
+                                </td>
+                                <td>
+                                    {editMode === user._id ? (
                                         <>
                                             <button onClick={() => handleUpdate(user._id)}>Save</button>
                                             <button onClick={() => setEditMode(null)}>Cancel</button>
@@ -100,7 +113,7 @@ const UsersList = () => {
                                     ) : (
                                         <>
                                             <button onClick={() => handleEdit(user._id)}>Edit</button>
-                                            <button onClick={() => handleDelete(user._id)}>Delete</button>
+                                            <button className="delete-btn" onClick={() => handleDelete(user._id)}>Delete</button>
                                         </>
                                     )}
                                 </td>

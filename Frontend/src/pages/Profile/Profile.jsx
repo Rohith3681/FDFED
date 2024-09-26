@@ -46,6 +46,8 @@ const Profile = () => {
                   tour={booking.tour} // Access the tour details
                   showReviewButton={1} 
                   showBookButton={0} 
+                  showUpdateButton={0}
+                  showDeleteButton={0}
                 />
               ))}
             </div>
