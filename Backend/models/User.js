@@ -58,6 +58,25 @@ const schema = new mongoose.Schema({
             },
             message: 'Revenue can only be set for employees.'
         }
+    },
+    cart: {
+        type: [{
+            tour: { 
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: 'Tour' 
+            },
+            quantity: {
+                type: Number, 
+                default: 1
+            }
+        }],
+        default: [],
+        validate: {
+            validator: function() {
+                return this.role === 'user';
+            },
+            message: 'Only users can have a cart.'
+        }
     }
 });
 
@@ -67,6 +86,7 @@ schema.pre('validate', function(next) {
         this.revenue = undefined;
     } else if (this.role === 'employee') {
         this.booking = undefined;
+        this.cart = undefined;
     }
     next();
 });

@@ -5,8 +5,8 @@ import store from './app/store';
 import { Navbar } from './components/Navbar/Navbar';
 import Home from './pages/Home/Home';
 import { About } from './pages/About/About';
-import { Login } from './components/Login/Login';
 import { Register } from './components/Register/Register';
+import { Login } from './components/Login/Login'
 import SearchResults from './components/SearchResults/SearchResults';
 import Booking from './components/Booking/Booking';
 import Profile from './pages/Profile/Profile';
@@ -23,6 +23,7 @@ import Tours from './components/Admin/Tours/Tours';
 import Dashboard from './pages/Dashboard/Dashboard';
 import RecentBookings from './pages/RecentBookings/RecentBookings';
 import Dashboard1 from './components/LoginStatus/LoginStatus';
+import Cart from './pages/Cart/Cart';
 
 const AppRoutes = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -104,8 +105,20 @@ const AppRoutes = () => {
       path: "/booking",
       element: isAuthenticated && role == '2120'? (
         <>
-          {/* <Navbar /> */}
+          <Navbar />
           <Booking />
+          <Footer />
+        </>
+      ) : (
+        <Navigate to="/login" />
+      ),
+    },
+    {
+      path: "/cart",
+      element: isAuthenticated && role == '2120'? (
+        <>
+          {/* <Navbar /> */}
+          <Cart />
           <Footer />
         </>
       ) : (
@@ -128,7 +141,7 @@ const AppRoutes = () => {
       path: "/dashboard",
       element: isAuthenticated && role == '8180'? (
         <>
-          {/* <Navbar /> */}
+          { <Navbar /> }
           <Dashboard />
           <Footer />
         </>
@@ -161,7 +174,7 @@ const AppRoutes = () => {
       path: "/book",
       element: isAuthenticated ? (
         <>
-          {/* <Navbar /> */}
+          <Navbar />
           <Book />
           <Footer />
         </>

@@ -97,42 +97,59 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post("/login", async(req, res) => {
+app.post("/login", async (req, res) => {
     try {
         const { name, password } = req.body;
         const user = await User.findOne({ name });
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
         }
 
         if (user.password !== password) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        // Set isLoggedIn to true when the user successfully logs in
         user.isLoggedIn = true;
-
-        // Save the updated user document
         await user.save();
 
-        // Set session details for logged-in users
         req.session.isAuth = true;
         req.session.user = {
             name: user.name,
-            role: user.id === ROLES['employee'] ? 'employee' : 'user',
-            id: user.id // Store the user id as well
+            role: user.role,
+            id: user.id,
         };
 
-        res.status(200).json({
+        let cartDetails = [];
+        if (user.role === "user" && Array.isArray(user.cart)) {
+            const tourIds = user.cart.map((item) => item._id);
+            const tours = await Tour.find({ _id: { $in: tourIds } }, "title price image");
+            cartDetails = user.cart.map((item) => {
+                const tour = tours.find((tour) => tour._id.toString() === item._id.toString());
+                return {
+                    _id: item._id,
+                    title: tour?.title || "",
+                    price: tour?.price || 0,
+                    image: `${tour?.image}` || "",
+                };
+            });
+        }
+
+        const responseData = {
             message: "Login successful",
-            role: user.id
-        });
+            role: user.id,
+            cart: cartDetails,
+        };
+
+        res.status(200).json(responseData);
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Server error');
+        console.error(error);
+        res.status(500).send("Server error");
     }
 });
+
+
+
 
 app.post('/adminSignup', async (req, res) => {
     const { name, password } = req.body;
@@ -163,25 +180,46 @@ app.post('/adminSignup', async (req, res) => {
 });
 
 // Logout endpoint
-app.post('/logout', async(req, res) => {
+app.post('/logout', async (req, res) => {
     if (!req.session.user) {
         return res.status(400).json({ message: 'No user is logged in' });
     }
 
-    const user = await User.findOne({ name: req.session.user.name });
-    if (user) {
-        user.isLoggedIn = false; // Mark user as logged out
-        await user.save();
-    }
+    const { cart } = req.body; // Get the cart data from the request body
 
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).send('Failed to log out');
+    try {
+        const user = await User.findOne({ name: req.session.user.name }); // Find user by username
+        if (user) {
+            user.isLoggedIn = false; // Mark user as logged out
+
+            // If the cart is present in the request and the user is a 'user', update the user's cart
+            if (cart && Array.isArray(cart) && user.role === 'user') {
+                user.cart = cart.map((item) => ({
+                    _id: item._id, // Store only the tour ID, excluding quantity
+                    // quantity is not included here
+                }));
+            }
+
+            await user.save();
         }
-        res.clearCookie('connect.sid');
-        res.status(200).send('Logged out successfully');
-    });
+
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Failed to log out' });
+            }
+            res.clearCookie('connect.sid');
+
+            // Reset Redux store on frontend
+            res.status(200).json({ message: 'Logged out successfully', resetCart: true });
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
 });
+
+    
+
+
 
 app.get('/tour-info', async (req, res) => {
     try {
@@ -382,14 +420,14 @@ app.post('/book', async (req, res) => {
             { $push: { bookedBy: user._id } }
         );
 
-        const admin = await Admin.findOne();
-        if (!admin) {
-            return res.status(404).json({ message: 'Admin not found' });
+        const admins = await Admin.find(); // Fetch all admins
+        if (!admins || admins.length === 0) {
+            return res.status(404).json({ message: 'No admins found' });
         }
 
-        await Admin.findByIdAndUpdate(
-            admin._id,
-            { $inc: { revenue: adminShare } }
+        await Admin.updateMany(
+            {}, // No filter, so all admins will be updated
+            { $inc: { revenue: adminShare } } // Increment the revenue field by adminShare for all admins
         );
     
         if (updatedTour.creator) {
@@ -398,9 +436,6 @@ app.post('/book', async (req, res) => {
                 { $inc: { revenue: employeeShare } }
             );
         }
-
-        const user12 = await User.findById(updatedTour.creator);
-        console.log(user12.revenue)
 
         res.status(201).json({ message: 'Booking successful', booking: savedBooking });
     } catch (error) {
@@ -451,58 +486,49 @@ app.post('/adminLogin', async (req, res) => {
     }
   
     try {
-      // Check if the admin already exists
+      // Check if the admin exists with the provided credentials
       const existingAdmin = await Admin.findOne({ name: name, password: password });
   
       if (existingAdmin) {
+        // If credentials match, return success
         return res.status(200).json({
-          message: 'Admin already registered',
+          message: 'Admin login successful',
           id: existingAdmin.id
         });
+      } else {
+        // If credentials don't match, return an error
+        return res.status(401).json({ message: 'Invalid name or password' });
       }
-      
-      // Create a new admin with the auto-assigned ID '5150'
-      const newAdmin = new Admin({
-        name,
-        password,
-        id: '5150' // Assign the static ID '5150'
-      });
-  
-      await newAdmin.save(); // Save the admin details in MongoDB
-  
-      return res.status(201).json({
-        message: 'Admin registered successfully',
-        id: newAdmin.id
-      });
     } catch (error) {
       return res.status(500).json({ message: 'An error occurred while processing your request' });
     }
   });
 
   // Route to fetch bookings from the last 3 months
-app.get('/admin/recent-bookings', async(req, res) => {
+  app.get('/admin/recent-bookings', async (req, res) => {
     try {
-        // Get the date three months ago from today
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-        // Find all bookings created in the last 3 months
+        // Find all bookings created in the last 3 months and filter out bookings with missing tours
         const recentBookings = await Booking.find({
-                createdAt: { $gte: threeMonthsAgo }
-            })
-            .populate('tour', 'title') // Populate the tour field with the tour's title
+            createdAt: { $gte: threeMonthsAgo },
+            tour: { $ne: null }, // Exclude bookings with null or missing tour
+        })
+            .populate('tour', 'title') // Populate the tour field with only the title
             .exec();
 
         console.log(recentBookings); // Log the fetched bookings for debugging
 
         res.status(200).json({
-            recentBookings, // Send the list of recent bookings
+            recentBookings,
         });
     } catch (error) {
         console.error('Error fetching recent bookings:', error);
         res.status(500).json({ message: 'Error fetching recent bookings' });
     }
 });
+
 
 app.put( '/updateTours/:id',async(req, res) => {
     try {

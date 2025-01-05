@@ -1,74 +1,104 @@
 .booking-container {
     display: flex;
     justify-content: space-between;
-    padding: 20px;
+    padding: 77px;
+    gap: 30px;
+    font-family: 'Arial', sans-serif;
 }
 
 .tour-details {
     flex: 1;
-    margin-right: 20px;
-}
-
-.tour-image {
-    width: 100%;
-    height: auto;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
     border-radius: 8px;
-}
-
-.tour-info {
     padding: 20px;
 }
 
 .tour-info h2 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #333;
 }
 
 .tour-info p {
     margin: 8px 0;
+    line-height: 1.6;
+}
+
+.tour-desc {
+    margin-top: 10px;
+    color: #555;
+}
+
+.reviews h3 {
+    margin: 20px 0 10px;
+    font-size: 22px;
+    color: #444;
+}
+
+.reviews ul {
+    padding: 0;
+    list-style-type: none;
+}
+
+.review-item {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    font-style: italic;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .booking-form {
     flex: 1;
-    max-width: 500px;
+    max-width: 450px;
 }
 
 .booking-form h2 {
     margin-bottom: 20px;
     font-size: 24px;
-    font-weight: bold;
-}
-
-.booking-form form {
-    display: flex;
-    flex-direction: column;
+    color: #444;
 }
 
 .booking-form label {
+    display: block;
     margin-bottom: 10px;
     font-weight: bold;
+    color: #555;
 }
 
 .booking-form input,
 .booking-form select {
+    width: 100%;
+    padding: 10px;
     margin-top: 5px;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
 }
 
 .booking-form button {
     margin-top: 20px;
-    padding: 10px;
+    padding: 12px;
     border: none;
-    border-radius: 4px;
-    background-color: #007bff;
+    border-radius: 5px;
+    background-color: orange;
     color: white;
     font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .booking-form button:hover {
-    background-color: #0056b3;
+    background-color: orange;
+}
+
+.tour-image {
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+    border-radius: 8px;
 }

@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import Display from '../../shared/Display'; // Import the Display component
+import './Book.css';
 
 const Book = () => {
-    const [tours, setTours] = useState([]);
+    const [tours, setTours] = useState([]); // All available tours
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Fetch tours from the backend
     useEffect(() => {
         const fetchTours = async () => {
             try {
-                const response = await fetch('http://localhost:8000/tours'); // Fetch tours from backend
+                const response = await fetch('http://localhost:8000/tours');
                 if (!response.ok) {
                     throw new Error('Failed to fetch tours');
                 }
-                const data = await response.json(); // Parse JSON response
-                setTours(data); // Set tours in state
+                const data = await response.json();
+                setTours(data);
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching tours:', err);
@@ -30,16 +32,17 @@ const Book = () => {
     if (loading) return <p>Loading tours...</p>;
     if (error) return <p>{error}</p>;
 
-    // Render the list of tours using the Display component
     return (
         <div className="tours-container">
-            {tours.length > 0 ? (
-                tours.map((tour) => (
-                    <Display key={tour._id} tour={tour} showReviewButton={1} showBookButton={1}/> // Pass the entire tour object
-                ))
-            ) : (
-                <p>No tours available</p>
-            )}
+            <div className="tour-list">
+                {tours.length > 0 ? (
+                    tours.map((tour) => (
+                        <Display key={tour._id} tour={tour} showReviewButton={1} showBookButton={1} />
+                    ))
+                ) : (
+                    <p>No tours available.</p>
+                )}
+            </div>
         </div>
     );
 };

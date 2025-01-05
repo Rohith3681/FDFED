@@ -2,6 +2,7 @@
     width: 100%;
     padding: 15px;
     box-sizing: border-box;
+    display: contents;
 }
 
 .card1 {
@@ -19,9 +20,9 @@
 }
 
 .tour-image-small {
-    height: 20vh; /* Reduced height */
-    width: auto;  /* Maintain aspect ratio */
-    max-width: 100%; /* Ensure it does not exceed parent width */
+    height: 40vh; /* Reduced height */
+    width: 63vh;  /* Maintain aspect ratio */
+   /* Ensure it does not exceed parent width */
     display: flex;
     border-bottom: 1px solid #eee;
 }

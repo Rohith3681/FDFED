@@ -1,0 +1,39 @@
+.cart-card {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    background-color: #fff;
+  }
+  
+  .cart-card img.tour-image {
+    width: 175px; /* Fixed width for the image */
+    height: 175px; /* Fixed height for the image */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    margin-right: 20px; /* Adds some space between the image and text */
+    border-radius: 8px;
+  }
+  
+  .cart-card-details {
+    flex-grow: 1;
+  }
+  
+  .cart-card h5 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .cart-card p {
+    margin: 5px 0;
+    color: #666;
+  }
+  
+  .cart-card button {
+    margin-top: 10px;
+  }
+  

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Display from '../../shared/Display';
+import "./Profile.css"
 
 const Profile = () => {
   const { username } = useSelector((state) => state.auth);

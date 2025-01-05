@@ -12,7 +12,7 @@ const RecentBookings = () => {
         try {
             const res = await fetch('http://localhost:8000/admin/recent-bookings');
             const data = await res.json();
-            setBookings(data.recentBookings); // Use the correct key from the API response
+            setBookings(data.recentBookings || []); // Ensure bookings is always an array
         } catch (error) {
             console.error('Error fetching recent bookings:', error);
         }
@@ -38,9 +38,9 @@ const RecentBookings = () => {
                         bookings.map((booking) => (
                             <tr key={booking._id}>
                                 <td>{booking.name}</td>
-                                <td>{booking.tour.title}</td>
-                                <td>{new Date(booking.startDate).toLocaleDateString()}</td>
-                                <td>{new Date(booking.endDate).toLocaleDateString()}</td>
+                                <td>{booking.tour ? booking.tour.title : 'N/A'}</td>
+                                <td>{booking.startDate ? new Date(booking.startDate).toLocaleDateString() : 'N/A'}</td>
+                                <td>{booking.endDate ? new Date(booking.endDate).toLocaleDateString() : 'N/A'}</td>
                                 <td>{booking.adults}</td>
                                 <td>{booking.children}</td>
                                 <td>{booking.phone}</td>

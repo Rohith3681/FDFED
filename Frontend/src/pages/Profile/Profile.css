@@ -1,0 +1,106 @@
+/* General Container Styling */
+.profile-container {
+    width: 100%;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background-color: #f9f9f9;
+  }
+  
+  /* Header */
+  .profile-container h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #444;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+  }
+  
+  /* User Details Section */
+  .bookings-details h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #555;
+    text-align: center;
+    background-color: #eaf7ff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left: 5px solid #0078d7;
+  }
+  
+  /* Section Headers */
+  .bookings-details h3 {
+    font-size: 1.5rem;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #444;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+  }
+  
+  /* Cards Container */
+  .tour-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-evenly; 
+    width: 100%;
+  }
+  
+  /* No Bookings Text */
+  .bookings-details p {
+    font-style: italic;
+    color: #888;
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+  
+  /* Error Message */
+  .error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  /* Loading Message */
+  .profile-container p {
+    font-style: italic;
+    text-align: center;
+    color: #666;
+  }
+  
+  /* Full-Width Adjustments */
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+  }
+  
+  .profile-container {
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .profile-container {
+      padding: 15px;
+    }
+  
+    .tour-cards-container {
+      flex-direction: column;
+      align-items: center;  
+    }
+  
+    .profile-container h1 {
+      font-size: 2rem;
+    }
+  
+    .bookings-details h2, .bookings-details h3 {
+      font-size: 1.3rem;
+    }
+  }

@@ -1,0 +1,96 @@
+/* Create.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    padding: 0px;
+    margin: 0px;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    
+  }
+  
+  h1 {
+    color: #ff6600; 
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  form {
+    background-color: #ffffff; /* White background for the form */
+    border: 2px solid #000; /* Black border for sharp contrast */
+    border-radius: 8px;
+    padding: 20px;
+    margin: 50px auto;
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.8);
+  }
+  
+  form div {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    display: block;
+    font-weight: bold;
+    color: #000; /* Black for readability */
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #000;
+  }
+  
+  textarea {
+    resize: none;
+    height: 80px;
+  }
+  
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  input[type="file"]:focus {
+    border-color: #ff6600; /* Orange highlight on focus */
+    outline: none;
+    box-shadow: 0 0 5px #ff6600;
+  }
+  
+  button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff6600; /* Orange button */
+    color: #fff; /* White text */
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:disabled {
+    background-color: #ffa366; /* Lighter orange for disabled state */
+    cursor: not-allowed;
+  }
+  
+  button:hover:not(:disabled) {
+    background-color: #e65c00; /* Darker orange on hover */
+  }
+  
+  
+  p.status-message {
+    text-align: center;
+    font-weight: bold;
+    color: #ff6600; 
+    margin-top: 10px;
+  }

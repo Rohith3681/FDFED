@@ -1,21 +1,26 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../../features/auth/authSlice.js';
+import { logout } from '../../features/auth/authSlice';
 import './Navbar.css';
 
 export const Navbar = () => {
-    const { isAuthenticated, role } = useSelector((state) => state.auth);
+    const { isAuthenticated, role, cart } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
     const handleLogout = async () => {
         try {
             const res = await fetch('http://localhost:8000/logout', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ cart }), // Send cart data in the body
                 credentials: 'include',
             });
+
             if (res.ok) {
-                dispatch(logout());
+                dispatch(logout()); // Clear user data and cart on logout
             } else {
                 console.error('Failed to log out');
             }
@@ -23,6 +28,9 @@ export const Navbar = () => {
             console.error('Error during logout:', error);
         }
     };
+
+    // Get the length of the cart array to display total items in the cart
+    const totalCartItems = Array.isArray(cart) ? cart.length : 0;
 
     return (
         <div>
@@ -58,9 +66,13 @@ export const Navbar = () => {
                             <NavLink to="/profile" activeClassName="active-link">
                                 <li>Profile</li>
                             </NavLink>
+                            {/* Conditionally render Cart button */}
+                            <NavLink to="/cart" activeClassName="active-link">
+                                <li>Cart ({totalCartItems})</li> {/* Display total items in the cart */}
+                            </NavLink>
                         </>
                     ) : null}
-                    {isAuthenticated && (role === '8180' || role === '2120')? (
+                    {isAuthenticated && (role === '8180' || role === '2120') ? (
                         <li>
                             <span onClick={handleLogout} className="span">
                                 Logout
