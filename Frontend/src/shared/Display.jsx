@@ -12,11 +12,13 @@ const Display = ({ tour, showReviewButton, showBookButton, showUpdateButton, sho
   const navigate = useNavigate();
   const [reviewText, setReviewText] = useState('');
   const [reviews, setReviews] = useState([]);
-
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/tours/${_id}`);
+        const response = await fetch(`http://localhost:8000/tours/${_id}`, {
+          method: 'GET',
+          credentials: 'include', // Include credentials (cookies)
+        });
         const data = await response.json();
         if (response.ok) {
           setReviews(data.reviews);
@@ -41,6 +43,7 @@ const Display = ({ tour, showReviewButton, showBookButton, showUpdateButton, sho
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include credentials (cookies)
         body: JSON.stringify({ review: reviewText }),
       });
       const data = await response.json();
@@ -55,10 +58,33 @@ const Display = ({ tour, showReviewButton, showBookButton, showUpdateButton, sho
     }
   };
 
-  const handleAddToCart = () => {
-    dispatch(addToCart(tour));
-    console.log("Tour added")
+  const handleAddToCart = async () => {
+    console.log(_id)
+    try {
+      // Send the tour ID to the backend to add it to the user's cart
+      const response = await fetch('http://localhost:8000/addToCart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Send the credentials (cookies)
+        body: JSON.stringify({ tourId: _id }), // Send the current tour's ID
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Dispatch the addToCart action to update the Redux store
+        dispatch(addToCart(tour));
+        console.log('Tour added to cart:', data.cart);  // Optionally log the updated cart
+      } else {
+        console.error('Failed to add to cart:', data.message);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   };
+  
 
   const isTourInCart = cart.some((item) => item._id === _id); // Safe access of cart
 

@@ -11,7 +11,9 @@ const Customers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:8000/users');
+        const response = await fetch('http://localhost:8000/users', {
+          credentials: 'include', // Include credentials in the request
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch users');
         }

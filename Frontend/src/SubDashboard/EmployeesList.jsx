@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './EmployeesList.css'; 
 
 const EmployeesList = () => {
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useState([]); // Ensure it's an array
     const [editMode, setEditMode] = useState(null); // Track which employee is being edited
     const [editEmployeeData, setEditEmployeeData] = useState({ name: '', email: '' }); // Data for editing employee (name and email)
 
@@ -13,9 +13,12 @@ const EmployeesList = () => {
     // Fetch employees from the backend
     const fetchEmployees = async () => {
         try {
-            const res = await fetch('http://localhost:8000/api/users');
+            const res = await fetch('http://localhost:8000/api/users', {
+                credentials: 'include', // Include credentials (cookies, authorization headers, etc.)
+            });
             const data = await res.json();
-            setEmployees(data);
+            console.log('Fetched Employees:', data); // Log the data to check its structure
+            setEmployees(Array.isArray(data) ? data : []); // Ensure employees is always an array
         } catch (error) {
             console.error('Error fetching employees:', error);
         }
@@ -26,6 +29,7 @@ const EmployeesList = () => {
         try {
             const res = await fetch(`http://localhost:8000/api/users/${id}`, {
                 method: 'DELETE',
+                credentials: 'include', // Include credentials (cookies, authorization headers, etc.)
             });
 
             if (res.ok) {
@@ -52,6 +56,7 @@ const EmployeesList = () => {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editEmployeeData),
+                credentials: 'include', // Include credentials (cookies, authorization headers, etc.)
             });
 
             if (res.ok) {
@@ -79,7 +84,7 @@ const EmployeesList = () => {
                 </thead>
                 <tbody>
                     {employees
-                        .filter(employee => employee.id === '8180') // Filter only employees with id '8180'
+                        .filter(employee => employee._id === '8180') // Filter by _id, assuming you want to display employees with this ID
                         .map((employee) => (
                             <tr key={employee._id}>
                                 <td>

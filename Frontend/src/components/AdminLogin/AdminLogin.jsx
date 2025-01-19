@@ -21,6 +21,7 @@ const Admin = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ name: username, password }),
       });
 

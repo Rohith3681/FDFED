@@ -9,10 +9,32 @@ const AdminDashboard = () => {
   const dispatch = useDispatch();
   const { username } = useParams(); // Access the username from the route params
 
-  const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action
-    navigate('/'); // Navigate to home after logout
-  };
+  const handleLogout = async () => {
+    try {
+        // Call the backend API to log out the admin
+        const response = await fetch('http://localhost:8000/adminLogout', {
+            method: 'POST',
+            credentials: 'include', // Ensure cookies are sent
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Dispatch the logout action to Redux
+            dispatch(logout());
+
+            // Navigate to the home page after logout
+            navigate('/');
+        } else {
+            // Handle logout failure
+            console.error('Logout failed:', result.message);
+        }
+    } catch (error) {
+        // Handle any errors that occur during the fetch
+        console.error('An error occurred while logging out:', error);
+    }
+};
+
 
   return (
     <div className="navbar">

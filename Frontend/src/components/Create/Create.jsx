@@ -75,11 +75,11 @@ const Create = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!validateInputs()) return;
-
+  
     setLoading(true);
-
+  
     const formData = new FormData();
     formData.append('title', title);
     formData.append('city', city);
@@ -87,17 +87,18 @@ const Create = () => {
     formData.append('distance', distance);
     formData.append('price', price);
     formData.append('desc', desc);
-    formData.append('username', username);
+    formData.append('username', username); // Keep username in formData
     if (image) {
       formData.append('image', image);
     }
-
+  
     try {
       const response = await fetch('http://localhost:8000/create', {
         method: 'POST',
-        body: formData,
+        body: formData, // Do not set Content-Type manually when using FormData
+        credentials: 'include', // Include credentials (cookies) in the request
       });
-
+  
       const result = await response.json();
       if (response.ok) {
         setStatusMessage('Tour created successfully!');
@@ -111,7 +112,7 @@ const Create = () => {
         setImage(null);
         setErrors({});
       } else {
-        setStatusMessage("Failed to create tour:" `${result.message}`);
+        setStatusMessage(`Failed to create tour: ${result.message}`);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -119,7 +120,7 @@ const Create = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return (
     <div >

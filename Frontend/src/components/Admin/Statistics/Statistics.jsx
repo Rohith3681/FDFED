@@ -10,7 +10,9 @@ const Statistics = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/tour-info');
+        const response = await fetch('http://localhost:8000/tour-info', {
+          credentials: 'include', // Include credentials in the request (e.g., cookies)
+        });
         if (!response.ok) {
           throw new Error(`Error fetching data: ${response.statusText}`);
         }

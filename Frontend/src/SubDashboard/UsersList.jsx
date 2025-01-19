@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './UsersList.css'
 
 const UsersList = () => {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState([]); // Ensure it's an array
     const [editMode, setEditMode] = useState(null); // Track which user is being edited
     const [editUserData, setEditUserData] = useState({ name: '', email: '' }); // Data for editing user (name and email)
 
@@ -13,7 +13,9 @@ const UsersList = () => {
     // Fetch users from the backend
     const fetchUsers = async () => {
         try {
-            const res = await fetch('http://localhost:8000/api/users');
+            const res = await fetch('http://localhost:8000/api/users', {
+                credentials: 'include', // Include credentials (cookies, etc.)
+            });
             const data = await res.json();
             setUsers(data);
         } catch (error) {
@@ -26,6 +28,7 @@ const UsersList = () => {
         try {
             const res = await fetch(`http://localhost:8000/api/users/${id}`, {
                 method: 'DELETE',
+                credentials: 'include', // Include credentials (cookies, etc.)
             });
 
             if (res.ok) {
@@ -52,6 +55,7 @@ const UsersList = () => {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editUserData),
+                credentials: 'include', // Include credentials (cookies, etc.)
             });
 
             if (res.ok) {
@@ -78,47 +82,53 @@ const UsersList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {users
-                        .filter(user => user.id === '2120') // Filter only users with id '2120'
-                        .map((user) => (
-                            <tr key={user._id}>
-                                <td>
-                                    {editMode === user._id ? (
-                                        <input
-                                            type="text"
-                                            value={editUserData.name}
-                                            onChange={(e) => setEditUserData({ ...editUserData, name: e.target.value })}
-                                        />
-                                    ) : (
-                                        user.name
-                                    )}
-                                </td>
-                                <td>
-                                    {editMode === user._id ? (
-                                        <input
-                                            type="email"
-                                            value={editUserData.email}
-                                            onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
-                                        />
-                                    ) : (
-                                        user.email
-                                    )}
-                                </td>
-                                <td>
-                                    {editMode === user._id ? (
-                                        <>
-                                            <button onClick={() => handleUpdate(user._id)}>Save</button>
-                                            <button onClick={() => setEditMode(null)}>Cancel</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => handleEdit(user._id)}>Edit</button>
-                                            <button className="delete-btn" onClick={() => handleDelete(user._id)}>Delete</button>
-                                        </>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
+                    {Array.isArray(users) && users.length > 0 ? (
+                        users
+                            .filter(user => user.id === '2120') // Filter only users with id '2120'
+                            .map((user) => (
+                                <tr key={user._id}>
+                                    <td>
+                                        {editMode === user._id ? (
+                                            <input
+                                                type="text"
+                                                value={editUserData.name}
+                                                onChange={(e) => setEditUserData({ ...editUserData, name: e.target.value })}
+                                            />
+                                        ) : (
+                                            user.name
+                                        )}
+                                    </td>
+                                    <td>
+                                        {editMode === user._id ? (
+                                            <input
+                                                type="email"
+                                                value={editUserData.email}
+                                                onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
+                                            />
+                                        ) : (
+                                            user.email
+                                        )}
+                                    </td>
+                                    <td>
+                                        {editMode === user._id ? (
+                                            <>
+                                                <button onClick={() => handleUpdate(user._id)}>Save</button>
+                                                <button onClick={() => setEditMode(null)}>Cancel</button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button onClick={() => handleEdit(user._id)}>Edit</button>
+                                                <button className="delete-btn" onClick={() => handleDelete(user._id)}>Delete</button>
+                                            </>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))
+                    ) : (
+                        <tr>
+                            <td colSpan="3">No users found.</td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </div>

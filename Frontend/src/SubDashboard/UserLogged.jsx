@@ -8,14 +8,18 @@ const UserLogged = () => {
     useEffect(() => {
         const fetchCounts = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/user-employee-counts'); // Updated endpoint
+                const response = await fetch('http://localhost:8000/api/user-employee-counts', {
+                    credentials: 'include', // Include credentials (cookies)
+                });
                 const data = await response.json();
                 const timeLabel = new Date().toLocaleTimeString();
                 
                 setLoginData((prevData) => [...prevData.slice(-9), { time: timeLabel, loggedInUsers: data.loggedInUsers }]);
 
                 // Fetch usernames
-                const namesResponse = await fetch('http://localhost:8000/api/loggedin-names');
+                const namesResponse = await fetch('http://localhost:8000/api/loggedin-names', {
+                    credentials: 'include', // Include credentials (cookies)
+                });
                 const namesData = await namesResponse.json();
                 setUsernames(namesData.loggedInUsers);
             } catch (error) {
@@ -78,4 +82,3 @@ const UserLogged = () => {
 };
 
 export default UserLogged;
-

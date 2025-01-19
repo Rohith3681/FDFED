@@ -7,10 +7,13 @@ const Tours = ({role}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
   useEffect(() => {
     const fetchTours = async () => {
       try {
-        const response = await fetch('http://localhost:8000/tours');
+        const response = await fetch('http://localhost:8000/tours', {
+          credentials: 'include', // Include credentials in the request
+        });
         if (!response.ok) {
           throw new Error(`Error fetching data: ${response.statusText}`);
         }
@@ -47,7 +50,13 @@ const Tours = ({role}) => {
       <div className={styles.toursContainer}>
         {filteredTours.length > 0 ? (
           filteredTours.map((tour) => (
-            <Display key={tour._id} tour={tour} showReviewButton={0} showBookButton={0} showUpdateButton={role === 5150 ? 1 : 0}/> // Use the Display component
+            <Display 
+              key={tour._id} 
+              tour={tour} 
+              showReviewButton={0} 
+              showBookButton={0} 
+              showUpdateButton={role === 5150 ? 1 : 0} // Show update button based on role
+            />
           ))
         ) : (
           <div>No tours found</div>

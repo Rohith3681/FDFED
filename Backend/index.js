@@ -13,18 +13,23 @@ import Admin from "./models/Admin.js";
 import multer from 'multer';
 import { getUserAndEmployeeCounts, getLoggedInNames } from './controllers/auth-controller.js';
 import userRoutes from './Routes/userRoutes.js';
+import MongoStore from 'connect-mongo'
+import cookieParser from "cookie-parser";
+import { request } from "http";
 
-const MongoDBStore = mongoDBSession(session);
 
-const store = new MongoDBStore({
-    uri: "mongodb://localhost:27017/tours",
-    collection: "sessions",
-});
+// const MongoDBStore = mongoDBSession(session);
+
+// const store = new MongoDBStore({
+//     uri: "mongodb://localhost:27017/tours",
+//     collection: "sessions",
+// });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.use(cookieParser());
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -37,19 +42,149 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
 app.use(cors({
     origin: 'http://localhost:5173', // Your frontend origin
     credentials: true
 }));
 app.use(express.json());
 
-app.use(session({
-    secret: 'I am Iron Man',
-    resave: false,
-    saveUninitialized: false,
-    store: store
-}));
+const isAuthenticated = (req, res, next) => {
+    const userName = req.cookies.userName;
+    const userRole = req.cookies.userRole;
+
+    if (userName && userRole) {
+        next(); // Proceed to the next middleware or route handler
+    } else {
+        res.status(401).json({ message: 'Unauthorized access: Missing or invalid cookies' });
+    }
+};
+
+const isAdmin = (req, res, next) => {
+    const userName = req.cookies.userName;
+    const userRole = req.cookies.userRole;
+
+    if (userName && userRole == 5150) {
+        next(); // Proceed to the next middleware or route handler
+    } else {
+        res.status(401).json({ message: 'Unauthorized access: Missing or invalid cookies' });
+    }
+};
+
+app.get("/refresh", isAuthenticated, async (req, res) => {
+    try {
+        const name = req.cookies.userName;
+        const user = await User.findOne({ name }).populate("cart.tour"); // Populate tour details in the cart
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        console.log("User found:", user.name);
+
+        user.isLoggedIn = true;
+        await user.save();
+
+        const rol = req.cookies.userRole;
+
+        let cartDetails = [];
+        if (user.role === "user" && Array.isArray(user.cart)) {
+            // Extract details from the populated cart
+            cartDetails = user.cart.map((item) => {
+                const tour = item.tour;
+                return {
+                    _id: tour._id,
+                    title: tour.title,
+                    price: tour.price,
+                    image: tour.image,
+                    quantity: item.quantity, // Include quantity from the cart
+                };
+            });
+        }
+
+        console.log("Cart Details:", cartDetails);
+
+        const responseData = {
+            role: rol, // Ensure the correct role is returned
+            username: user.name, // Send the username
+            cart: cartDetails, // Send the cart details directly as "cart"
+        };
+
+        res.status(200).json(responseData);
+    } catch (error) {
+        console.error("Error in /refresh endpoint:", error);
+        res.status(500).send("Server error");
+    }
+});
+
+
+app.post('/addToCart', isAuthenticated, async (req, res) => {
+    try {
+      const { tourId } = req.body;  // Expecting the tour ID in the request body
+      const name = req.cookies.userName;
+      const role = req.cookies.userRole;
+      // Check if the user exists and is a valid user
+      if (role != 2120) {
+        return res.status(400).json({ message: 'Invalid user or not authorized' });
+      }
+  
+      // Check if the tour exists in the database
+      const tour = await Tour.findById(tourId);
+      const user = await User.findOne({ name: name });
+      if (!tour) {
+        return res.status(404).json({ message: 'Tour not found' });
+      }
+  
+      // Add the tour to the user's cart (check if it already exists in the cart)
+      const existingTour = user.cart.find(item => item.tour.toString() === tourId);
+      if (existingTour) {
+        // If tour already in cart, update quantity
+        existingTour.quantity += 1;
+      } else {
+        // Otherwise, add new tour to the cart
+        user.cart.push({ tour: tourId, quantity: 1 });
+      }
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'Tour added to cart successfully', cart: user.cart });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
+  app.delete('/cart/remove/:tourId', isAuthenticated, async (req, res) => {
+    try {
+      const { tourId } = req.params;
+      const name = req.cookies.userName;
+      const role = req.cookies.userRole;
+        
+      const user = await User.findOne({ name: name });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Filter out the tour from the cart
+      user.cart = user.cart.filter((item) => item.tour.toString() !== tourId);
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'Tour removed from cart successfully.' });
+    } catch (error) {
+      console.error('Error removing tour from cart:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+app.get('/users', isAuthenticated, async (req, res) => {
+    try{
+        const users = await User.find({ id: '2120' });
+        res.json(users);
+    }catch (error){
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
 
 app.post('/register', async (req, res) => {
     try {
@@ -97,6 +232,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
 app.post("/login", async (req, res) => {
     try {
         const { name, password } = req.body;
@@ -112,14 +248,25 @@ app.post("/login", async (req, res) => {
 
         user.isLoggedIn = true;
         await user.save();
+        const rol = user.role == "user" ? 2120 : 8180;
+        // Set cookies for name and role
+        res.cookie('userName', user.name, {
+            httpOnly: false, // Prevent JavaScript access to the cookie
+            secure: false, // Set to true if using HTTPS
+            sameSite: 'lax', // Restrict the cookie to same-site requests
+            path: '/'
+        });
 
-        req.session.isAuth = true;
-        req.session.user = {
-            name: user.name,
-            role: user.role,
-            id: user.id,
-        };
+        res.cookie('userRole', rol, {
+            httpOnly: false, // Prevent JavaScript access to the cookie
+            secure: false, // Set to true if using HTTPS
+            sameSite: 'lax', // Restrict the cookie to same-site requests
+            path: '/'
+        });
 
+        
+        console.log('Cookies set:', { userName: user.name, userRole: user.role });
+        
         let cartDetails = [];
         if (user.role === "user" && Array.isArray(user.cart)) {
             const tourIds = user.cart.map((item) => item._id);
@@ -147,8 +294,6 @@ app.post("/login", async (req, res) => {
         res.status(500).send("Server error");
     }
 });
-
-
 
 
 app.post('/adminSignup', async (req, res) => {
@@ -180,48 +325,87 @@ app.post('/adminSignup', async (req, res) => {
 });
 
 // Logout endpoint
-app.post('/logout', async (req, res) => {
-    if (!req.session.user) {
-        return res.status(400).json({ message: 'No user is logged in' });
-    }
-
+app.post('/logout', isAuthenticated, async (req, res) => {
     const { cart } = req.body; // Get the cart data from the request body
-
+    const userName = req.cookies.userName;
+    const userRole = req.cookies.userRole;
+    console.log(userName)
     try {
-        const user = await User.findOne({ name: req.session.user.name }); // Find user by username
-        if (user) {
-            user.isLoggedIn = false; // Mark user as logged out
+        // Retrieve the user name from the cookies
+        const userName = req.cookies.userName; // Get `userName` from cookies
+        if (!userName) {
+            return res.status(400).json({ message: 'No user is logged in' });
+        }
 
-            // If the cart is present in the request and the user is a 'user', update the user's cart
+        // Find the user in the database
+        const user = await User.findOne({ name: userName });
+        if (user) {
+            user.isLoggedIn = false; // Mark the user as logged out
+
+            // Update the user's cart if provided in the request body
             if (cart && Array.isArray(cart) && user.role === 'user') {
                 user.cart = cart.map((item) => ({
-                    _id: item._id, // Store only the tour ID, excluding quantity
-                    // quantity is not included here
+                    _id: item._id, // Store only the tour ID
                 }));
             }
 
             await user.save();
         }
 
-        req.session.destroy((err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Failed to log out' });
-            }
-            res.clearCookie('connect.sid');
-
-            // Reset Redux store on frontend
-            res.status(200).json({ message: 'Logged out successfully', resetCart: true });
+        // Clear cookies by name
+        res.clearCookie('userName', {
+            httpOnly: true, // Ensure settings match those used when setting the cookie
+            sameSite: 'lax', // Match the `sameSite` setting when the cookie was set
+            path: '/'
         });
+
+        res.clearCookie('userRole', {
+            httpOnly: true,
+            sameSite: 'lax',
+            path: '/'
+        });
+
+        // Send a successful response
+        res.status(200).json({ message: 'Logged out successfully', resetCart: true });
     } catch (error) {
+        // Handle server errors
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 });
 
-    
+app.post('/adminLogout', async (req, res) => {
+    const userName = req.cookies.userName;
+
+    try {
+        // Check if the admin is logged in by verifying the cookie
+        if (!userName) {
+            return res.status(400).json({ message: 'No admin is logged in' });
+        }
+
+        // Clear the cookies
+        res.clearCookie('userName', {
+            httpOnly: true,  // Ensure settings match those used when setting the cookie
+            sameSite: 'lax', // Match the sameSite setting when the cookie was set
+            path: '/'        // Clear the cookie for all paths
+        });
+
+        res.clearCookie('userRole', {
+            httpOnly: true,  // Ensure settings match those used when setting the cookie
+            sameSite: 'lax', // Match the sameSite setting when the cookie was set
+            path: '/'        // Clear the cookie for all paths
+        });
+
+        // Send a successful response
+        res.status(200).json({ message: 'Admin logged out successfully' });
+    } catch (error) {
+        // Handle any errors
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+});
 
 
-
-app.get('/tour-info', async (req, res) => {
+app.get('/tour-info', isAuthenticated, async (req, res) => {
     try {
         // Count the total number of tours
         const AdminRevenue = await Admin.find()
@@ -241,7 +425,7 @@ app.get('/tour-info', async (req, res) => {
     }
 });
 
-app.get('/adminRevenue', async (req, res) => {
+app.get('/adminRevenue', isAdmin, async (req, res) => {
     try {
       const admin = await Admin.findOne({ id: '5150' }); // Fetch the admin with id "5150"
       if (!admin) {
@@ -254,7 +438,7 @@ app.get('/adminRevenue', async (req, res) => {
   });
   
 
-app.get('/users', async (req, res) => {
+app.get('/users', isAdmin, async (req, res) => {
     try {
       const users = await User.find({ id: '2120' }); // Fetch users with id = 2120
       res.json(users);
@@ -282,9 +466,12 @@ app.get('/tours', async (req, res) => {
 });
 
 
-app.get('/user/profile/:username', async (req, res) => {
+app.get('/user/profile', isAuthenticated, async (req, res) => {
     try {
-        const { username } = req.params;
+        const username = req.cookies.userName; // Access the specific cookie directly
+        console.log(username);
+
+        // Fetch the user details from MongoDB
         const user = await User.findOne({ name: username })
             .populate({
                 path: 'booking',
@@ -297,6 +484,7 @@ app.get('/user/profile/:username', async (req, res) => {
         if (user) {
             const today = new Date();
 
+            // Filter bookings based on the current date
             const completedBookings = user.booking.filter(
                 (booking) => new Date(booking.endDate) < today
             );
@@ -307,6 +495,7 @@ app.get('/user/profile/:username', async (req, res) => {
                 (booking) => new Date(booking.startDate) > today
             );
 
+            // Respond with the user profile and bookings categorized by status
             res.json({
                 user: user.name,
                 completedBookings,
@@ -324,7 +513,8 @@ app.get('/user/profile/:username', async (req, res) => {
 
 
 
-app.post('/create', upload.single('image'), async (req, res) => {
+app.post('/create', isAuthenticated, upload.single('image'), async (req, res) => {
+    const username = req.cookies.userName;
     const {
         title,
         city,
@@ -332,7 +522,6 @@ app.post('/create', upload.single('image'), async (req, res) => {
         distance,
         price,
         desc,
-        username,
     } = req.body;
 
     try {
@@ -369,9 +558,10 @@ app.post('/create', upload.single('image'), async (req, res) => {
     }
 });
 
-app.post('/book', async (req, res) => {
+app.post('/book', isAuthenticated, async (req, res) => {
     try {
-        const { username, tourId, name, phone, startDate, endDate, adults, children } = req.body;
+        const username = req.cookies.userName;
+        const {tourId, name, phone, startDate, endDate, adults, children } = req.body;
 
         if (!username || !tourId || !name || !phone || !startDate || !endDate || !adults) {
             return res.status(400).json({ message: 'Please fill all required fields' });
@@ -398,7 +588,7 @@ app.post('/book', async (req, res) => {
         });
 
         const savedBooking = await newBooking.save();
-
+        
         const user = await User.findOneAndUpdate(
             { name: username },
             { $push: { booking: savedBooking._id } },
@@ -445,9 +635,9 @@ app.post('/book', async (req, res) => {
 });
 
 
-app.get('/dashboard/:username', async (req, res) => {
+app.get('/dashboard', isAuthenticated, async (req, res) => {
     try {
-        const { username } = req.params;
+        const username = req.cookies.userName;
 
         const user = await User.findOne({ name: username, role: 'employee' });
         if (!user) {
@@ -480,32 +670,51 @@ app.get('/dashboard/:username', async (req, res) => {
 
 app.post('/adminLogin', async (req, res) => {
     const { name, password } = req.body;
-  
+
+    // Check if both username and password are provided
     if (!name || !password) {
-      return res.status(400).json({ message: 'Please provide both name and password' });
+        return res.status(400).json({ message: 'Please provide both name and password' });
     }
-  
+
     try {
-      // Check if the admin exists with the provided credentials
-      const existingAdmin = await Admin.findOne({ name: name, password: password });
-  
-      if (existingAdmin) {
-        // If credentials match, return success
-        return res.status(200).json({
-          message: 'Admin login successful',
-          id: existingAdmin.id
-        });
-      } else {
-        // If credentials don't match, return an error
-        return res.status(401).json({ message: 'Invalid name or password' });
-      }
+        // Find the admin with the provided username and password
+        const existingAdmin = await Admin.findOne({ name: name, password: password });
+
+        if (existingAdmin) {
+            // If credentials match, set cookies
+            res.cookie('userName', existingAdmin.name, {
+                httpOnly: true, // Block JavaScript access to the cookie
+                secure: false,  // Set to true if using HTTPS
+                sameSite: 'lax', // Restrict to same-site requests
+                path: '/'        // Cookie will be sent for all paths
+            });
+
+            res.cookie('userRole', 5150, {
+                httpOnly: true, // Block JavaScript access to the cookie
+                secure: false,  // Set to true if using HTTPS
+                sameSite: 'lax', // Restrict to same-site requests
+                path: '/'        // Cookie will be sent for all paths
+            });
+
+            // Return success response with admin ID
+            return res.status(200).json({
+                message: 'Admin login successful',
+                id: existingAdmin.id
+            });
+        } else {
+            // If credentials don't match, return an error
+            return res.status(401).json({ message: 'Invalid name or password' });
+        }
     } catch (error) {
-      return res.status(500).json({ message: 'An error occurred while processing your request' });
+        console.error('Error:', error);
+        return res.status(500).json({ message: 'An error occurred while processing your request' });
     }
-  });
+});
+
+
 
   // Route to fetch bookings from the last 3 months
-  app.get('/admin/recent-bookings', async (req, res) => {
+  app.get('/admin/recent-bookings', isAdmin, async (req, res) => {
     try {
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -530,7 +739,7 @@ app.post('/adminLogin', async (req, res) => {
 });
 
 
-app.put( '/updateTours/:id',async(req, res) => {
+app.put( '/updateTours/:id', isAdmin, async(req, res) => {
     try {
         const { id } = req.params;
         const updatedTour = await Tour.findByIdAndUpdate(id, req.body, { new: true });
@@ -544,7 +753,7 @@ app.put( '/updateTours/:id',async(req, res) => {
     }
 });
 
-app.delete('/deleteTours/:id', async(req, res) => {
+app.delete('/deleteTours/:id', isAdmin, async(req, res) => {
     try {
         const { id } = req.params;
         const deletedTour = await Tour.findByIdAndDelete(id);
@@ -558,7 +767,7 @@ app.delete('/deleteTours/:id', async(req, res) => {
     }
 });
 
-app.post('/tours/:id/review', async (req, res) => {
+app.post('/tours/:id/review', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
         const { review } = req.body;
@@ -579,7 +788,7 @@ app.post('/tours/:id/review', async (req, res) => {
     }
 });
 
-app.get('/tours/:id', async (req, res) => {
+app.get('/tours/:id', isAdmin, async (req, res) => {
     try {
         const tour = await Tour.findById(req.params.id);
         if (!tour) {
@@ -603,11 +812,11 @@ app.get('/tours/search/:location', async (req, res) => {
   });
   
 
-app.get('/api/user-employee-counts', getUserAndEmployeeCounts);
+app.get('/api/user-employee-counts',  isAdmin, getUserAndEmployeeCounts);
 
-app.get('/api/loggedin-names', getLoggedInNames);
+app.get('/api/loggedin-names',  isAdmin, getLoggedInNames);
 
-app.use('/api', userRoutes);
+app.use('/api',  isAdmin, userRoutes);
 
 app.listen(8000, () => {
     console.log("Server started on port 8000");

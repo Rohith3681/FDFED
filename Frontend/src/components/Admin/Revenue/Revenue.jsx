@@ -7,7 +7,9 @@ const Revenue = () => {
   useEffect(() => {
     const fetchRevenue = async () => {
       try {
-        const response = await fetch('http://localhost:8000/adminRevenue');
+        const response = await fetch('http://localhost:8000/adminRevenue', {
+          credentials: 'include', // Include credentials in the request (cookies, etc.)
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch revenue');
         }

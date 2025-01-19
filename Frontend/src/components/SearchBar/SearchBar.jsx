@@ -9,7 +9,9 @@ export const SearchBar = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/tours/search/${location.trim()}`);
+      const response = await fetch(`http://localhost:8000/tours/search/${location.trim()}`, {
+        credentials: 'include', // Include credentials in the request
+      });
       const data = await response.json();
       if (response.ok) {
         navigate('/results', { state: { searchResults: data } });

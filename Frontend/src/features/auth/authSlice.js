@@ -7,18 +7,24 @@ const authSlice = createSlice({
     role: '',
     username: '',
     cart: [], // Initialize cart as an empty array
+    loading: true,
   },
   reducers: {
     login(state, action) {
       state.isAuthenticated = true;
       state.role = action.payload.role;
       state.username = action.payload.username;
+      state.loading = false;
     },
     logout(state) {
       state.isAuthenticated = false;
       state.role = '';
       state.username = '';
       state.cart = []; // Clear cart on logout
+      state.loading = false;
+    },
+    setLoading(state, action) {
+      state.loading = action.payload;
     },
     addToCart(state, action) {
       // Ensure cart is initialized as an array
@@ -59,6 +65,7 @@ export const {
   addToCart,
   removeFromCart,
   setCart,
+  setLoading,
 } = authSlice.actions;
 
 export default authSlice.reducer;

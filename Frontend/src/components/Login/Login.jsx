@@ -11,7 +11,6 @@ export const Login = () => {
     const [error, setError] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
     const handleSubmit = async (event) => {
         event.preventDefault();
         const credentials = { name, password };

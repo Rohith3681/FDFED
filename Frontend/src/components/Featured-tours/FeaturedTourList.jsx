@@ -9,10 +9,25 @@ const FeaturedTourList = () => {
     useEffect(() => {
         const fetchTours = async () => {
             try {
-                const response = await fetch('http://localhost:8000/tours');
+                const response = await fetch('http://localhost:8000/tours', {
+                    credentials: 'include', // Include credentials in the request
+                });
+
+                // Check if the response is valid
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tours');
+                }
+
                 const data = await response.json();
-                const sortedTours = data.sort((a, b) => a.id - b.id).slice(0, 8);
-                setTours(sortedTours);
+
+                // Ensure the fetched data is an array
+                if (Array.isArray(data)) {
+                    const sortedTours = data.sort((a, b) => a.id - b.id).slice(0, 8);
+                    setTours(sortedTours);
+                } else {
+                    console.error('Fetched data is not an array:', data);
+                }
+
             } catch (error) {
                 console.error('Error fetching tours:', error);
             }

@@ -24,11 +24,19 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import RecentBookings from './pages/RecentBookings/RecentBookings';
 import Dashboard1 from './components/LoginStatus/LoginStatus';
 import Cart from './pages/Cart/Cart';
+import { useDispatch } from 'react-redux';
+import { login } from './features/auth/authSlice';
+import { setCart } from './features/auth/authSlice';
+import { useEffect } from 'react';
+import Refresh from './components/Refresh/Refresh';
 
 const AppRoutes = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const role = useSelector((state) => state.auth.role);
-
+  const loading = useSelector((state) => state.auth.loading);
+  if(loading) {
+    return <div>Loading...</div>; // Show a loading indicator while verifying auth
+  }
   const router = createBrowserRouter([
     {
       path: "/",
@@ -274,6 +282,7 @@ const AppRoutes = () => {
 function App() {
   return (
     <Provider store={store}>
+      <Refresh />
       <AppRoutes />
     </Provider>
   );

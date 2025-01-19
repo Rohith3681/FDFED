@@ -12,7 +12,14 @@ const Profile = () => {
     const fetchUserAndBookings = async () => {
       if (username) {
         try {
-          const response = await fetch(`http://localhost:8000/user/profile/${username}`);
+          const response = await fetch('http://localhost:8000/user/profile', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include', // Include credentials (cookies) in the request
+          });
+
           if (response.ok) {
             const data = await response.json();
             setUserDetails(data);
@@ -25,7 +32,6 @@ const Profile = () => {
         }
       }
     };
-
     fetchUserAndBookings();
   }, [username]);
 
@@ -39,7 +45,7 @@ const Profile = () => {
           <h2>Username: {userDetails.user}</h2>
 
           <h3>Ongoing Bookings:</h3>
-          {userDetails.ongoingBookings.length > 0 ? (
+          {userDetails.ongoingBookings && userDetails.ongoingBookings.length > 0 ? (
             <div className="tour-cards-container">
               {userDetails.ongoingBookings.map((booking) => (
                 <Display 
@@ -57,7 +63,7 @@ const Profile = () => {
           )}
 
           <h3>Upcoming Bookings:</h3>
-          {userDetails.upcomingBookings.length > 0 ? (
+          {userDetails.upcomingBookings && userDetails.upcomingBookings.length > 0 ? (
             <div className="tour-cards-container">
               {userDetails.upcomingBookings.map((booking) => (
                 <Display 
@@ -73,7 +79,7 @@ const Profile = () => {
           )}
 
           <h3>Completed Bookings:</h3>
-          {userDetails.completedBookings.length > 0 ? (
+          {userDetails.completedBookings && userDetails.completedBookings.length > 0 ? (
             <div className="tour-cards-container">
               {userDetails.completedBookings.map((booking) => (
                 <Display 

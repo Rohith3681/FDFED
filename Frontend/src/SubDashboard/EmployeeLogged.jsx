@@ -8,14 +8,18 @@ const EmployeeLogged = () => {
     useEffect(() => {
         const fetchCounts = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/user-employee-counts'); // Updated endpoint
+                const response = await fetch('http://localhost:8000/api/user-employee-counts', {
+                    credentials: 'include', // Include credentials (cookies)
+                });
                 const data = await response.json();
                 const timeLabel = new Date().toLocaleTimeString();
 
                 setEmployeeData((prevData) => [...prevData.slice(-9), { time: timeLabel, loggedInEmployees: data.loggedInEmployees }]);
 
                 // Fetch employee names
-                const namesResponse = await fetch('http://localhost:8000/api/loggedin-names');
+                const namesResponse = await fetch('http://localhost:8000/api/loggedin-names', {
+                    credentials: 'include', // Include credentials (cookies)
+                });
                 const namesData = await namesResponse.json();
                 setEmployeeNames(namesData.loggedInEmployees);
             } catch (error) {

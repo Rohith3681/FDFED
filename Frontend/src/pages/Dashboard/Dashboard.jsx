@@ -11,7 +11,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchEmployeeTours = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/dashboard/${username}`);
+        const response = await fetch(`http://localhost:8000/dashboard`, {
+          method: 'GET',
+          credentials: 'include', // Include credentials (cookies) in the request
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch tours');
         }
@@ -22,9 +25,10 @@ const Dashboard = () => {
         console.error('Error fetching employee tours:', error);
       }
     };
-
+  
     fetchEmployeeTours();
   }, [username]);
+  
 
   if (role !== '8180') {
     return <div>You do not have access to this dashboard.</div>;

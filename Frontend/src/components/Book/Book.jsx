@@ -11,10 +11,18 @@ const Book = () => {
     useEffect(() => {
         const fetchTours = async () => {
             try {
-                const response = await fetch('http://localhost:8000/tours');
+                const response = await fetch('http://localhost:8000/tours', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Include credentials (cookies) in the request
+                });
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch tours');
                 }
+
                 const data = await response.json();
                 setTours(data);
                 setLoading(false);

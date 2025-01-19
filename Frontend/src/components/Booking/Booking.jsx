@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import './Booking.css';
 import { useSelector } from 'react-redux';
@@ -20,8 +20,32 @@ const Booking = () => {
     const [children, setChildren] = useState(0);
     const [errors, setErrors] = useState({});
     const [bookingSuccess, setBookingSuccess] = useState(false);
+    const [tourData, setTourData] = useState(null); // To store the fetched tour data
 
     const today = new Date().toISOString().split('T')[0];
+
+    // Fetch tour details using GET method (no need for bookingData here)
+    useEffect(() => {
+        const fetchTourDetails = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/tours', {
+                    method: 'GET', // Using GET to fetch the tour data
+                    credentials: 'include', // Include credentials (cookies) in the request
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tour data');
+                }
+
+                const data = await response.json();
+                setTourData(data); // Set the fetched tour data
+            } catch (error) {
+                console.error('Error fetching tour data:', error);
+            }
+        };
+
+        fetchTourDetails();
+    }, []);
 
     const validateFields = () => {
         let formErrors = {};
@@ -53,12 +77,12 @@ const Booking = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validateFields();
-
+    
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
-
+    
         const bookingData = {
             username,
             tourId: tour._id,
@@ -69,18 +93,19 @@ const Booking = () => {
             adults,
             children,
         };
-
+    
         try {
             const response = await fetch('http://localhost:8000/book', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // Include credentials (cookies) in the request
                 body: JSON.stringify(bookingData),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 console.log('Booking successful:', data);
                 setBookingSuccess(true); // Set success state
@@ -100,32 +125,41 @@ const Booking = () => {
         }
     };
 
-    const { title, city, distance, price, maxGroupSize, desc, reviews, image } = tour;
+    // Set the tour data fetched via GET method
+    const { title, city, distance, price, maxGroupSize, desc, reviews, image } = tourData || {};
 
     return (
         <div className="booking-container">
             <div className="tour-details">
-                <div className="tour-info">
-                    <h2>{title}</h2>
-                    <img
-                        src={`../../../${image}`}
-                        alt={title}
-                        className="tour-image"
-                    />
-                    <p><strong>City:</strong> {city}</p>
-                    <p><strong>Distance:</strong> {distance} km</p>
-                    <p><strong>Price:</strong> ${price} per person</p>
-                    <p><strong>Max Group Size:</strong> {maxGroupSize}</p>
-                    <p>{desc}</p>
-                    <div className="reviews">
-                        <h3>Reviews:</h3>
-                        <ul>
-                            {reviews.map((review, index) => (
-                                <li key={index}>{review}</li>
-                            ))}
-                        </ul>
+                {tourData ? (
+                    <div className="tour-info">
+                        <h2>{title}</h2>
+                        <img
+                            src={`../../../${image}`}
+                            alt={title}
+                            className="tour-image"
+                        />
+                        <p><strong>City:</strong> {city}</p>
+                        <p><strong>Distance:</strong> {distance} km</p>
+                        <p><strong>Price:</strong> ${price} per person</p>
+                        <p><strong>Max Group Size:</strong> {maxGroupSize}</p>
+                        <p>{desc}</p>
+                        <div className="reviews">
+                            <h3>Reviews:</h3>
+                            {reviews && reviews.length > 0 ? (
+                                <ul>
+                                    {reviews.map((review, index) => (
+                                        <li key={index}>{review}</li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>No reviews available</p>
+                            )}
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <p>Loading tour details...</p>
+                )}
             </div>
             <div className="booking-form">
                 <h2>Book Your Tour</h2>

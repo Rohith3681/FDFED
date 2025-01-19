@@ -10,7 +10,9 @@ const RecentBookings = () => {
 
     const fetchBookings = async () => {
         try {
-            const res = await fetch('http://localhost:8000/admin/recent-bookings');
+            const res = await fetch('http://localhost:8000/admin/recent-bookings', {
+                credentials: 'include', // Include credentials in the request (e.g., cookies)
+            });
             const data = await res.json();
             setBookings(data.recentBookings || []); // Ensure bookings is always an array
         } catch (error) {
