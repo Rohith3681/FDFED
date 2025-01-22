@@ -73,7 +73,9 @@ const isAdmin = (req, res, next) => {
 app.get("/refresh", isAuthenticated, async (req, res) => {
     try {
         const name = req.cookies.userName;
-        const user = await User.findOne({ name }).populate("cart.tour"); // Populate tour details in the cart
+        const rol = req.cookies.userRole;
+
+        const user = await User.findOne({ name });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -84,19 +86,17 @@ app.get("/refresh", isAuthenticated, async (req, res) => {
         user.isLoggedIn = true;
         await user.save();
 
-        const rol = req.cookies.userRole;
-
         let cartDetails = [];
         if (user.role === "user" && Array.isArray(user.cart)) {
-            // Extract details from the populated cart
+            const tourIds = user.cart.map((item) => item._id);
+            const tours = await Tour.find({ _id: { $in: tourIds } }, "title price image");
             cartDetails = user.cart.map((item) => {
-                const tour = item.tour;
+                const tour = tours.find((tour) => tour._id.toString() === item._id.toString());
                 return {
-                    _id: tour._id,
-                    title: tour.title,
-                    price: tour.price,
-                    image: tour.image,
-                    quantity: item.quantity, // Include quantity from the cart
+                    _id: item._id,
+                    title: tour?.title || "",
+                    price: tour?.price || 0,
+                    image: `${tour?.image}` || "",
                 };
             });
         }
@@ -104,9 +104,9 @@ app.get("/refresh", isAuthenticated, async (req, res) => {
         console.log("Cart Details:", cartDetails);
 
         const responseData = {
-            role: rol, // Ensure the correct role is returned
-            username: user.name, // Send the username
-            cart: cartDetails, // Send the cart details directly as "cart"
+            role: rol,
+            username: name,
+            cart: cartDetails,
         };
 
         res.status(200).json(responseData);
@@ -115,7 +115,6 @@ app.get("/refresh", isAuthenticated, async (req, res) => {
         res.status(500).send("Server error");
     }
 });
-
 
 app.post('/addToCart', isAuthenticated, async (req, res) => {
     try {
@@ -155,26 +154,27 @@ app.post('/addToCart', isAuthenticated, async (req, res) => {
   
   app.delete('/cart/remove/:tourId', isAuthenticated, async (req, res) => {
     try {
-      const { tourId } = req.params;
-      const name = req.cookies.userName;
-      const role = req.cookies.userRole;
-        
-      const user = await User.findOne({ name: name });
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Filter out the tour from the cart
-      user.cart = user.cart.filter((item) => item.tour.toString() !== tourId);
-  
-      await user.save();
-  
-      res.status(200).json({ message: 'Tour removed from cart successfully.' });
+        const { tourId } = req.params;
+        const name = req.cookies.userName;
+        const role = req.cookies.userRole;
+
+        const user = await User.findOne({ name: name });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Filter out the tour from the cart, ensuring that item.tour exists
+        user.cart = user.cart.filter((item) => item.tour && item.tour.toString() !== tourId);
+
+        await user.save();
+
+        res.status(200).json({ message: 'Tour removed from cart successfully.' });
     } catch (error) {
-      console.error('Error removing tour from cart:', error);
-      res.status(500).json({ message: 'Server error' });
+        console.error('Error removing tour from cart:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-  });
+});
+
 
 app.get('/users', isAuthenticated, async (req, res) => {
     try{
