@@ -17,13 +17,7 @@ import MongoStore from 'connect-mongo'
 import cookieParser from "cookie-parser";
 import { request } from "http";
 
-
-// const MongoDBStore = mongoDBSession(session);
-
-// const store = new MongoDBStore({
-//     uri: "mongodb://localhost:27017/tours",
-//     collection: "sessions",
-// });
+const port = process.env.port || 8000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,7 +75,6 @@ app.get("/refresh", isAuthenticated, async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        console.log("User found:", user.name);
 
         user.isLoggedIn = true;
         await user.save();
@@ -101,7 +94,6 @@ app.get("/refresh", isAuthenticated, async (req, res) => {
             });
         }
 
-        console.log("Cart Details:", cartDetails);
 
         const responseData = {
             role: rol,
@@ -265,7 +257,6 @@ app.post("/login", async (req, res) => {
         });
 
         
-        console.log('Cookies set:', { userName: user.name, userRole: user.role });
         
         let cartDetails = [];
         if (user.role === "user" && Array.isArray(user.cart)) {
@@ -329,7 +320,6 @@ app.post('/logout', isAuthenticated, async (req, res) => {
     const { cart } = req.body; // Get the cart data from the request body
     const userName = req.cookies.userName;
     const userRole = req.cookies.userRole;
-    console.log(userName)
     try {
         // Retrieve the user name from the cookies
         const userName = req.cookies.userName; // Get `userName` from cookies
@@ -468,8 +458,7 @@ app.get('/tours', async (req, res) => {
 
 app.get('/user/profile', isAuthenticated, async (req, res) => {
     try {
-        const username = req.cookies.userName; // Access the specific cookie directly
-        console.log(username);
+        const username = req.cookies.userName; 
 
         // Fetch the user details from MongoDB
         const user = await User.findOne({ name: username })
@@ -648,7 +637,6 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
             .populate('bookedBy', 'name') // Populate bookedBy with user names
             .exec();
 
-        console.log(tours); // Log the fetched tours for debugging
 
         // Create an array to hold booked user names for each tour
         const toursWithBookedUserNames = tours.map(tour => ({
@@ -727,7 +715,6 @@ app.post('/adminLogin', async (req, res) => {
             .populate('tour', 'title') // Populate the tour field with only the title
             .exec();
 
-        console.log(recentBookings); // Log the fetched bookings for debugging
 
         res.status(200).json({
             recentBookings,
@@ -818,6 +805,6 @@ app.get('/api/loggedin-names',  isAdmin, getLoggedInNames);
 
 app.use('/api',  isAdmin, userRoutes);
 
-app.listen(8000, () => {
+app.listen(port, () => {
     console.log("Server started on port 8000");
 });
