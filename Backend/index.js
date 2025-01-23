@@ -17,7 +17,6 @@ import MongoStore from 'connect-mongo'
 import cookieParser from "cookie-parser";
 import { request } from "http";
 
-const port = process.env.port || 8000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -805,6 +804,6 @@ app.get('/api/loggedin-names',  isAdmin, getLoggedInNames);
 
 app.use('/api',  isAdmin, userRoutes);
 
-app.listen(port, () => {
+app.listen(8000, () => {
     console.log("Server started on port 8000");
 });
