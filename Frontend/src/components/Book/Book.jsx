@@ -42,15 +42,33 @@ const Book = () => {
 
     return (
         <div className="tours-container">
-            <div className="tour-list">
-                {tours.length > 0 ? (
-                    tours.map((tour) => (
-                        <Display key={tour._id} tour={tour} showReviewButton={1} showBookButton={1} />
-                    ))
-                ) : (
-                    <p>No tours available.</p>
-                )}
+            <div className="section-title">
+                <h2>Available Tours</h2>
+                <p>Discover amazing destinations and book your next adventure</p>
             </div>
+            
+            {loading ? (
+                <div className="loading">Loading tours...</div>
+            ) : error ? (
+                <div className="error">{error}</div>
+            ) : (
+                <div className="tour-list">
+                    {tours.length > 0 ? (
+                        tours.map((tour) => (
+                            <Display 
+                                key={tour._id} 
+                                tour={tour} 
+                                showReviewButton={1} 
+                                showBookButton={1} 
+                            />
+                        ))
+                    ) : (
+                        <div className="no-tours">
+                            <p>No tours available.</p>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

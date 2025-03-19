@@ -1,25 +1,35 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import CartCard from '../../components/CartCard/CartCard';
+import { useNavigate } from 'react-router-dom';
+import CartCard from '../../components/CartCard/Cartcard';
+import styles from './Cart.module.css';
 
 const Cart = () => {
-  const cart = useSelector((state) => state.auth.cart) || []; // Ensure cart is always an array
+  const cart = useSelector((state) => state.auth.cart) || [];
+  const navigate = useNavigate();
 
   return (
-    <div className="cart-container">
-      <h2>Your Cart</h2>
-      {cart.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <div className="cart-list">
-          {cart.map((tour) => (
-            <CartCard 
-              key={tour._id} 
-              tour={tour} // Pass the entire tour object as a prop
-            />
-          ))}
-        </div>
-      )}
+    <div className={styles.pageWrapper}>
+      <div className={styles['cart-container']}>
+        <h1 className={styles['cart-header']}>Your Cart</h1>
+        {cart.length === 0 ? (
+          <div className={styles['empty-cart']}>
+            <p>Your cart is empty. Start exploring amazing tours!</p>
+            <button 
+              className={styles['btn-book']} 
+              onClick={() => navigate('/')}
+            >
+              Browse Tours
+            </button>
+          </div>
+        ) : (
+          <div className={styles['cart-list']}>
+            {cart.map((tour) => (
+              <CartCard key={tour._id} tour={tour} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

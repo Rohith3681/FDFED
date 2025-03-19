@@ -48,6 +48,10 @@ const tourSchema = new mongoose.Schema({
         ref: 'User',
         default: [],
         required: true
+    },
+    revenue: {
+        type: Number,
+        default: 0
     }
 });
 

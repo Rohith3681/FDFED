@@ -28,7 +28,7 @@ const Refresh = () => {
             username: data.username, // Pass username
           })
         );
-
+        console.log(data.cart);
         // Dispatch setCart action to set cart details from backend
         dispatch(setCart(data.cart || [])); // Ensure cart is passed as an array
       } catch (err) {

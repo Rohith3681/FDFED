@@ -24,11 +24,6 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import RecentBookings from './pages/RecentBookings/RecentBookings';
 import Dashboard1 from './components/LoginStatus/LoginStatus';
 import Cart from './pages/Cart/Cart';
-import { useDispatch } from 'react-redux';
-import { login } from './features/auth/authSlice';
-import { setCart } from './features/auth/authSlice';
-import { useEffect } from 'react';
-import Refresh from './components/Refresh/Refresh';
 
 const AppRoutes = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -125,7 +120,7 @@ const AppRoutes = () => {
       path: "/cart",
       element: isAuthenticated && role == '2120'? (
         <>
-          {/* <Navbar /> */}
+          <Navbar />
           <Cart />
           <Footer />
         </>
@@ -282,7 +277,6 @@ const AppRoutes = () => {
 function App() {
   return (
     <Provider store={store}>
-      <Refresh />
       <AppRoutes />
     </Provider>
   );

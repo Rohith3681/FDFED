@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Display from '../../shared/Display';
-import "./Profile.css"
+import "./Profile.css";
 
 const Profile = () => {
   const { username } = useSelector((state) => state.auth);
@@ -14,10 +14,8 @@ const Profile = () => {
         try {
           const response = await fetch('http://localhost:8000/user/profile', {
             method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include', // Include credentials (cookies) in the request
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
           });
 
           if (response.ok) {
@@ -35,6 +33,32 @@ const Profile = () => {
     fetchUserAndBookings();
   }, [username]);
 
+  const handleCancelBooking = async (bookingId) => {
+    if (!bookingId) {
+      console.error("Invalid booking ID");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8000/cancel/${bookingId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        setUserDetails((prev) => ({
+          ...prev,
+          upcomingBookings: prev.upcomingBookings.filter(booking => booking._id !== bookingId),
+        }));
+      } else {
+        console.error('Failed to cancel booking');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
   return (
     <div className="profile-container">
       <h1>Profile</h1>
@@ -44,55 +68,39 @@ const Profile = () => {
         <div className="bookings-details">
           <h2>Username: {userDetails.user}</h2>
 
-          <h3>Ongoing Bookings:</h3>
-          {userDetails.ongoingBookings && userDetails.ongoingBookings.length > 0 ? (
-            <div className="tour-cards-container">
-              {userDetails.ongoingBookings.map((booking) => (
-                <Display 
-                  key={booking._id} 
-                  tour={booking.tour} // Access the tour details
-                  showReviewButton={1} 
-                  showBookButton={0} 
-                  showUpdateButton={0}
-                  showDeleteButton={0}
-                />
-              ))}
-            </div>
-          ) : (
-            <p>No ongoing bookings found.</p>
-          )}
+          {["ongoingBookings", "upcomingBookings", "completedBookings"].map((category) => (
+            <div key={category}>
+              <h3>
+                {category === "ongoingBookings" ? "Ongoing Bookings" : 
+                 category === "upcomingBookings" ? "Upcoming Bookings" : "Completed Bookings"}
+              </h3>
 
-          <h3>Upcoming Bookings:</h3>
-          {userDetails.upcomingBookings && userDetails.upcomingBookings.length > 0 ? (
-            <div className="tour-cards-container">
-              {userDetails.upcomingBookings.map((booking) => (
-                <Display 
-                  key={booking._id} 
-                  tour={booking.tour} // Access the tour details
-                  showReviewButton={0} 
-                  showBookButton={0} 
-                />
-              ))}
+              {userDetails[category]?.length > 0 ? (
+                <div className="tour-cards-container">
+                  {userDetails[category].map((booking) => (
+                    <div key={booking._id} className="booking-card">
+                      <Display 
+                        tour={booking.tour} 
+                        showReviewButton={category !== "upcomingBookings"} 
+                        showBookButton={category === "completedBookings"} 
+                      />
+                      <p className="booking-cost">Cost: ${booking.cost?.toFixed(2)}</p>
+                      {category === "upcomingBookings" && ( 
+                        <button 
+                          className="cancel-button"
+                          onClick={() => handleCancelBooking(booking._id)}
+                        >
+                          Cancel Booking
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>No {category.replace("Bookings", "").toLowerCase()} bookings found.</p>
+              )}
             </div>
-          ) : (
-            <p>No upcoming bookings found.</p>
-          )}
-
-          <h3>Completed Bookings:</h3>
-          {userDetails.completedBookings && userDetails.completedBookings.length > 0 ? (
-            <div className="tour-cards-container">
-              {userDetails.completedBookings.map((booking) => (
-                <Display 
-                  key={booking._id} 
-                  tour={booking.tour} // Access the tour details
-                  showReviewButton={1} 
-                  showBookButton={1} 
-                />
-              ))}
-            </div>
-          ) : (
-            <p>No completed bookings found.</p>
-          )}
+          ))}
         </div>
       ) : (
         <p>Loading...</p>

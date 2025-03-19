@@ -2,6 +2,7 @@ import express from 'express';
 import { getAllUsers, updateUser, deleteUser } from '../controllers/User-controller.js';
 
 const router = express.Router();
+router.use(express.json());
 
 // Get all users
 router.get('/users', getAllUsers);

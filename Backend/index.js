@@ -4,19 +4,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import './mongo.js'
 import User from "./models/User.js";
-import ROLES from './roles.js'
-import session from "express-session";
-import mongoDBSession from "connect-mongodb-session";
 import Tour from "./models/Tour.js";
 import Booking from "./models/Booking.js"
 import Admin from "./models/Admin.js";
 import multer from 'multer';
 import { getUserAndEmployeeCounts, getLoggedInNames } from './controllers/auth-controller.js';
 import userRoutes from './Routes/userRoutes.js';
-import MongoStore from 'connect-mongo'
 import cookieParser from "cookie-parser";
-import { request } from "http";
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,7 +38,8 @@ app.use(express.json());
 const isAuthenticated = (req, res, next) => {
     const userName = req.cookies.userName;
     const userRole = req.cookies.userRole;
-
+    console.log("hello")
+    console.log(userName)
     if (userName && userRole) {
         next(); // Proceed to the next middleware or route handler
     } else {
@@ -62,6 +57,12 @@ const isAdmin = (req, res, next) => {
         res.status(401).json({ message: 'Unauthorized access: Missing or invalid cookies' });
     }
 };
+
+app.get("/test-error", (req, res, next) => {
+    const error = new Error("Something went wrong!");
+    error.status = 400;  // Setting custom error status
+    next(error);  // Pass the error to middleware
+});
 
 app.get("/refresh", isAuthenticated, async (req, res) => {
     try {
@@ -362,6 +363,31 @@ app.post('/logout', isAuthenticated, async (req, res) => {
     }
 });
 
+app.delete("/cancel/:id", async (req, res) => {
+    console.log(req.params);  
+    try {
+        const { id } = req.params;
+        
+        const booking = await Booking.findById(id);
+        if (!booking) {
+            return res.status(404).json({ message: "Booking not found" });
+        }
+
+        await Booking.findByIdAndDelete(id);
+
+        await User.updateMany(
+            { bookings: id }, 
+            { $pull: { bookings: id } }
+        );
+
+        res.status(200).json({ message: "Booking canceled successfully and removed from user records" });
+    } catch (error) {
+        res.status(500).json({ message: "Error canceling booking", error });
+    }
+});
+
+
+
 app.post('/adminLogout', async (req, res) => {
     const userName = req.cookies.userName;
 
@@ -548,21 +574,21 @@ app.post('/create', isAuthenticated, upload.single('image'), async (req, res) =>
 
 app.post('/book', isAuthenticated, async (req, res) => {
     try {
-        const username = req.cookies.userName;
-        const {tourId, name, phone, startDate, endDate, adults, children } = req.body;
+        const username = req.cookies.userName;  
+        const { tourId, name, phone, startDate, endDate, adults, children = 0 } = req.body;  
 
         if (!username || !tourId || !name || !phone || !startDate || !endDate || !adults) {
             return res.status(400).json({ message: 'Please fill all required fields' });
         }
 
-        const tour = await Tour.findById(tourId);
+        const tour = await Tour.findById(tourId).populate('creator');
         if (!tour) {
             return res.status(404).json({ message: 'Tour not found' });
         }
-
+        console.log(adults, children);
         const totalCost = (tour.price * adults) + (tour.price * children);
         const adminShare = totalCost * 0.1;
-        const employeeShare = totalCost;
+        const employeeShare = totalCost * 0.9;  
 
         const newBooking = new Booking({
             name,
@@ -576,7 +602,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
         });
 
         const savedBooking = await newBooking.save();
-        
+
         const user = await User.findOneAndUpdate(
             { name: username },
             { $push: { booking: savedBooking._id } },
@@ -587,32 +613,24 @@ app.post('/book', isAuthenticated, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const updatedTour = await Tour.findById(tourId).populate('creator');
-        if (!updatedTour) {
-            return res.status(404).json({ message: 'Tour not found' });
-        }
-
-        // Push the user's _id into the bookedBy array of the tour
         await Tour.findByIdAndUpdate(
             tourId,
-            { $push: { bookedBy: user._id } }
+            { 
+                $push: { bookedBy: user._id },
+                $inc: { revenue: totalCost } 
+            },
+            { new: true }
         );
 
-        const admins = await Admin.find(); // Fetch all admins
-        if (!admins || admins.length === 0) {
+        const admins = await Admin.find();
+        if (!admins.length) {
             return res.status(404).json({ message: 'No admins found' });
         }
 
-        await Admin.updateMany(
-            {}, // No filter, so all admins will be updated
-            { $inc: { revenue: adminShare } } // Increment the revenue field by adminShare for all admins
-        );
-    
-        if (updatedTour.creator) {
-            await User.findByIdAndUpdate(
-                updatedTour.creator,
-                { $inc: { revenue: employeeShare } }
-            );
+        await Admin.updateMany({}, { $inc: { revenue: adminShare } });
+        console.log(tour.creator);
+        if (tour.creator) {
+            await User.findByIdAndUpdate(tour.creator._id, { $inc: { revenue: employeeShare } });
         }
 
         res.status(201).json({ message: 'Booking successful', booking: savedBooking });
@@ -621,6 +639,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 
 app.get('/dashboard', isAuthenticated, async (req, res) => {
@@ -642,7 +661,7 @@ app.get('/dashboard', isAuthenticated, async (req, res) => {
             ...tour.toObject(), // Convert tour to a plain object
             bookedByNames: tour.bookedBy.map(user => user.name) // Extract user names from bookedBy
         }));
-
+        console.log(user.revenue)
         res.status(200).json({
             username: user.name,
             revenue: user.revenue,
@@ -774,7 +793,7 @@ app.post('/tours/:id/review', isAuthenticated, async (req, res) => {
     }
 });
 
-app.get('/tours/:id', isAdmin, async (req, res) => {
+app.get('/tours/:id', isAuthenticated, async (req, res) => {
     try {
         const tour = await Tour.findById(req.params.id);
         if (!tour) {
@@ -803,6 +822,12 @@ app.get('/api/user-employee-counts',  isAdmin, getUserAndEmployeeCounts);
 app.get('/api/loggedin-names',  isAdmin, getLoggedInNames);
 
 app.use('/api',  isAdmin, userRoutes);
+
+app.use((err, req, res, next) => {
+    res.status(err.status || 500).json({
+        message: err.message || 'Internal Server Error'
+    });
+});
 
 app.listen(8000, () => {
     console.log("Server started on port 8000");

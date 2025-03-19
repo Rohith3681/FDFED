@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button } from 'reactstrap';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { removeFromCart } from '../../features/auth/authSlice';
+import styles from './CartCard.module.css';
 
 const CartCard = ({ tour }) => {
   const dispatch = useDispatch();
@@ -12,38 +12,40 @@ const CartCard = ({ tour }) => {
     try {
       const response = await fetch(`http://localhost:8000/cart/remove/${tour._id}`, {
         method: 'DELETE',
-        credentials: 'include', // Include cookies for authentication
+        credentials: 'include',
       });
 
       if (!response.ok) {
         throw new Error('Failed to remove item from the cart.');
       }
-
-      // Dispatch Redux action to remove the item locally
       dispatch(removeFromCart(tour._id));
     } catch (error) {
       console.error('Error removing item from cart:', error.message);
     }
   };
 
-  const handleBook = () => {
-    navigate('/booking', { state: { tour } });
-  };
-
-  const { title, price, image, _id } = tour;
+  const { title, price, image, city } = tour;
 
   return (
-    <div className="cart-card">
-      <img src={`../../../${image}`} alt={title} className="tour-image" />
-      <div className="cart-card-details">
-        <h5>{title}</h5>
-        <p>Price: ${price}</p>
-        <Button color="danger" onClick={handleRemove} style={{ marginTop: '10px', width: '100px' }}>
-          Remove
-        </Button>
-        <Button color="primary" onClick={handleBook} style={{ marginTop: '10px', marginLeft: '10px', width: '100px' }}>
-          Book
-        </Button>
+    <div className={styles['cart-card']}>
+      <img src={`../../../${image}`} alt={title} className={styles['tour-image']} />
+      <div className={styles['cart-card-details']}>
+        <div className={styles['tour-info']}>
+          <h3 className={styles['tour-title']}>{title}</h3>
+          <p className={styles['tour-location']}>{city}</p>
+          <p className={styles['tour-price']}>₹{price}</p>
+        </div>
+        <div className={styles['button-group']}>
+          <button className={styles['btn-remove']} onClick={handleRemove}>
+            Remove
+          </button>
+          <button 
+            className={styles['btn-book']} 
+            onClick={() => navigate('/booking', { state: { tour } })}
+          >
+            Book Now
+          </button>
+        </div>
       </div>
     </div>
   );
