@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import { Schema, model } from 'mongoose';
 
-const schema = new mongoose.Schema({
+const schema = new Schema({
     name: {
         type: String,
         required: true
@@ -28,7 +28,7 @@ const schema = new mongoose.Schema({
         required: true
     },
     tour: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [Schema.Types.ObjectId],
         ref: 'Tour',
         default: [],
         validate: {
@@ -39,7 +39,7 @@ const schema = new mongoose.Schema({
         }
     },
     booking: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [Schema.Types.ObjectId],
         ref: 'Booking',
         default: [],
         validate: {
@@ -62,7 +62,7 @@ const schema = new mongoose.Schema({
     cart: {
         type: [{
             tour: { 
-                type: mongoose.Schema.Types.ObjectId, 
+                type: Schema.Types.ObjectId, 
                 ref: 'Tour' 
             },
             quantity: {
@@ -91,4 +91,4 @@ schema.pre('validate', function(next) {
     next();
 });
 
-export default mongoose.model("User", schema);
+export default model("User", schema);

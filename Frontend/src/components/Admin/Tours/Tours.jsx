@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Display from '../../../shared/Display';
-import styles from './Tours.module.css'; // Create this CSS file for styling
+import styles from './Tours.module.css';
 
 const Tours = ({role}) => {
   const [toursData, setToursData] = useState([]);
@@ -9,10 +9,13 @@ const Tours = ({role}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    const controller = new AbortController();
+    
     const fetchTours = async () => {
       try {
         const response = await fetch('http://localhost:8000/tours', {
-          credentials: 'include', // Include credentials in the request
+          credentials: 'include',
+          signal: controller.signal
         });
         if (!response.ok) {
           throw new Error(`Error fetching data: ${response.statusText}`);
@@ -21,6 +24,7 @@ const Tours = ({role}) => {
         const jsonData = await response.json();
         setToursData(jsonData);
       } catch (error) {
+        if (error.name === 'AbortError') return;
         setError(error.message);
       } finally {
         setLoading(false);
@@ -28,7 +32,28 @@ const Tours = ({role}) => {
     };
 
     fetchTours();
+
+    return () => controller.abort(); // Cleanup on unmount
   }, []);
+
+  const handleDelete = async (tourId) => {
+    if (!window.confirm("Are you sure you want to delete this tour?")) return;
+
+    try {
+      const response = await fetch(`http://localhost:8000/tours/delete/${tourId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete tour');
+      }
+
+      setToursData(toursData.filter(tour => tour._id !== tourId));
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   const filteredTours = toursData.filter(tour =>
     tour.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -45,18 +70,27 @@ const Tours = ({role}) => {
         placeholder="Search by title..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className={styles.searchInput} // Optional: Create a CSS class for styling
+        className={styles.searchInput}
       />
       <div className={styles.toursContainer}>
         {filteredTours.length > 0 ? (
           filteredTours.map((tour) => (
-            <Display 
-              key={tour._id} 
-              tour={tour} 
-              showReviewButton={0} 
-              showBookButton={0} 
-              showUpdateButton={role === 5150 ? 1 : 0} // Show update button based on role
-            />
+            <div key={tour._id} className={styles.tourItem}>
+              <Display 
+                tour={tour} 
+                showReviewButton={0} 
+                showBookButton={0} 
+                showUpdateButton={role === 5150 ? 1 : 0}
+              />
+              {role === 5150 && (
+                <button 
+                  className={styles.deleteButton} 
+                  onClick={() => handleDelete(tour._id)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
           ))
         ) : (
           <div>No tours found</div>
