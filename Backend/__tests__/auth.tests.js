@@ -4,7 +4,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import app from '../app.js';
 import User from '../models/User.js';
 import Tour from '../models/Tour.js';
-
+import redisClient from '../config/redisClient.js';
+import Booking from '../models/Booking.js';
 
 describe('POST /addToCart', () => {
     let mongoServer;
@@ -181,3 +182,201 @@ describe('POST /addToCart', () => {
         expect(res3.body.message).toBe('Tour added to cart successfully');
     });
 });
+
+describe('POST /book', () => {
+    let mongoServer;
+
+    beforeAll(async () => {
+        mongoServer = await MongoMemoryServer.create();
+        const uri = mongoServer.getUri();
+        await mongoose.connect(uri);
+    });
+
+    afterAll(async () => {
+        await mongoose.disconnect();
+        await mongoServer.stop();
+    });
+
+    afterEach(async () => {
+        await User.deleteMany({});
+        await Tour.deleteMany({});
+    });
+
+    it('should successfully book a tour', async () => {
+        const user = await User.create({
+            name: 'User',
+            email: 'user@example.com',
+            password: 'user@123',
+            id: '2120',
+            role: 'user',
+            booking: []
+        });
+
+        const tour = await Tour.create({
+            _id: new mongoose.Types.ObjectId('674f5482e49ade7c6903b748'),
+            title: 'Bali, Indonesia',
+            city: 'Bali',
+            address: 'Somewhere in Indonesia',
+            distance: 400,
+            price: 99,
+            desc: 'this is the description',
+            reviews: ['hello'],
+            creator: new mongoose.Types.ObjectId('674f49714a3445080e689c62'),
+            image: 'uploads/1733252226956-1727375852207-tour-img02.jpg',
+            count: 5,
+            bookedBy: [],
+            Id: 10,
+            revenue: 0
+        });
+
+        const res = await request(app)
+            .post('/book')
+            .set('Cookie', [`userName=Test User`, `userRole=2120`])
+            .send({ tourId: tour._id });
+
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('should return error when trying to book a non-existent tour', async () => {
+        const user = await User.create({
+            name: 'Test User',
+            email: 'test@example.com',
+            password: 'test123',
+            id: '2120',
+            role: 'user',
+            booking: []
+        });
+
+        const nonExistentTourId = new mongoose.Types.ObjectId();
+
+        const res = await request(app)
+            .post('/book')
+            .set('Cookie', [`userName=Test User`, `userRole=2120`])
+            .send({ tourId: nonExistentTourId });
+
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('should return error when tour is fully booked', async () => {
+        const user = await User.create({
+            name: 'Test User',
+            email: 'test@example.com',
+            password: 'test123',
+            id: '2120',
+            role: 'user',
+            booking: []
+        });
+
+        const tour = await Tour.create({
+            _id: new mongoose.Types.ObjectId('674f5482e49ade7c6903b748'),
+            title: 'Bali, Indonesia',
+            city: 'Bali',
+            address: 'Somewhere in Indonesia',
+            distance: 400,
+            price: 99,
+            desc: 'this is the description',
+            reviews: ['hello'],
+            creator: new mongoose.Types.ObjectId('674f49714a3445080e689c62'),
+            image: 'uploads/1733252226956-1727375852207-tour-img02.jpg',
+            count: 0,
+            bookedBy: [
+                new mongoose.Types.ObjectId('674ff6c505676f964334ff48'),
+                new mongoose.Types.ObjectId('674ff6c505676f964334ff48'),
+                new mongoose.Types.ObjectId('674ff6c505676f964334ff48'),
+                new mongoose.Types.ObjectId('674ff6c505676f964334ff48')
+            ],
+            Id: 10,
+            revenue: 0
+        });
+
+        const res = await request(app)
+            .post('/book')
+            .set('Cookie', [`userName=Test User`, `userRole=2120`])
+            .send({ tourId: tour._id });
+
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('should prevent booking the same tour twice', async () => {
+        const user = await User.create({
+            name: 'Test User',
+            email: 'test@example.com',
+            password: 'test123',
+            id: '2120',
+            role: 'user',
+            booking: []
+        });
+
+        const tour = await Tour.create({
+            _id: new mongoose.Types.ObjectId('674f5482e49ade7c6903b748'),
+            title: 'Bali, Indonesia',
+            city: 'Bali',
+            address: 'Somewhere in Indonesia',
+            distance: 400,
+            price: 99,
+            desc: 'this is the description',
+            reviews: ['hello'],
+            creator: new mongoose.Types.ObjectId('674f49714a3445080e689c62'),
+            image: 'uploads/1733252226956-1727375852207-tour-img02.jpg',
+            count: 5,
+            bookedBy: [],
+            Id: 10,
+            revenue: 0
+        });
+
+        // First booking
+        await request(app)
+            .post('/book')
+            .set('Cookie', [`userName=Test User`, `userRole=2120`])
+            .send({ tourId: tour._id });
+
+        // Attempt to book the same tour again
+        const res = await request(app)
+            .post('/book')
+            .set('Cookie', [`userName=Test User`, `userRole=2120`])
+            .send({ tourId: tour._id });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('You have already booked this tour');
+    });
+});
+
+describe('DELETE /cancel/:id', () => {
+    let mongoServer;
+
+    beforeAll(async () => {
+        mongoServer = await MongoMemoryServer.create();
+        const uri = mongoServer.getUri();
+        await mongoose.connect(uri);
+    });
+
+    afterAll(async () => {
+        await mongoose.disconnect();
+        await mongoServer.stop();
+    });
+
+    afterEach(async () => {
+        await User.deleteMany({});
+        await Tour.deleteMany({});
+        await Booking.deleteMany({});
+    });
+
+    it('should return 404 when trying to cancel non-existent booking', async () => {
+        const nonExistentBookingId = new mongoose.Types.ObjectId();
+
+        const res = await request(app)
+            .delete(`/cancel/${nonExistentBookingId}`);
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body.message).toBe('Booking not found');
+    });
+
+    it('should handle invalid booking ID format', async () => {
+        const res = await request(app)
+            .delete('/cancel/invalidid');
+
+        expect(res.statusCode).toBe(500);
+        expect(res.body).toHaveProperty('message', 'Error canceling booking');
+    });
+});
+

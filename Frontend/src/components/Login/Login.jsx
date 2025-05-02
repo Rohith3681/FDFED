@@ -53,6 +53,7 @@ export const Login = () => {
     };
 
     const { isAuthenticated, role } = useSelector((state) => state.auth);
+    const videoSource = typeof hello === 'string' ? hello : '';
 
     return (
         <div className="login-container">
@@ -91,7 +92,7 @@ export const Login = () => {
 
                 <div className="video-container">
                     <video className="login-video" autoPlay loop muted>
-                        <source src={hello} type="video/mp4" />
+                        <source src={videoSource} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                     <div className="video-text-overlay">

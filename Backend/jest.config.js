@@ -3,7 +3,7 @@ export default {
     "^.+\\.[t|j]sx?$": "babel-jest"
   },
   moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1"
+    '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   testEnvironment: "node",
   transformIgnorePatterns: [
