@@ -4,11 +4,11 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URL=mongodb://mongo:27017/
-      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://mongo:27017/tours
+      - REDIS_URL=mongodb://mongo:27017/tours
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=your_redis_password
+      - REDIS_PORT=12264
+      - REDIS_PASSWORD=niLrzCcf7F72YyAcfQpbLrRBavFieUPE
     depends_on:
       - mongo
       - redis
