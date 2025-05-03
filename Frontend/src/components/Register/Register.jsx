@@ -12,12 +12,21 @@ export const Register = () => {
     const [signedin, setSignedin] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
         setError('');
+
+        if (password.length < 6) {
+            setPasswordError('Password must be at least 6 characters');
+            setLoading(false);
+            return;
+        } else {
+            setPasswordError('');
+        }
 
         const newUser = {
             name,
@@ -104,6 +113,14 @@ export const Register = () => {
                             className="input-field"
                             required
                         />
+                        {passwordError && (
+                            <span 
+                                className="error-message" 
+                                data-testid="password-error"
+                            >
+                                Password must be at least 6 characters
+                            </span>
+                        )}
                     </div>
 
                     <div className="mb-4">

@@ -203,15 +203,7 @@ app.delete("/tours/delete/:id", async (req, res) => {
     }
 });
 
-app.get('/users', isAuthenticated, async (req, res) => {
-    try{
-        const users = await User.find({ id: '2120' });
-        res.json(users);
-    }catch (error){
-        console.error('Error fetching users:', error);
-        res.status(500).json({ message: 'Server Error' });
-    }
-});
+
 
 app.post('/register', async (req, res) => {
     try {
