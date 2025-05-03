@@ -53,8 +53,9 @@ describe('Register Component', () => {
     fireEvent.blur(emailInput);
 
     await waitFor(() => {
-      const errorMessage = screen.getByText(/invalid email/i);
+      const errorMessage = screen.getByTestId('email-error');
       expect(errorMessage).toBeInTheDocument();
+      expect(errorMessage).toHaveTextContent('Please enter a valid email address');
     });
   });
 
@@ -80,11 +81,15 @@ describe('Register Component', () => {
     fireEvent.focus(passwordInput);
 
     await waitFor(() => {
-      const requirementMessage = screen.getByText((content, element) => {
-        const text = element.textContent.toLowerCase();
-        return text.includes('password') && text.includes('characters');
-      });
-      expect(requirementMessage).toBeInTheDocument();
+        const requirementMessage = screen.getByTestId('password-requirements');
+        expect(requirementMessage).toBeInTheDocument();
+        expect(requirementMessage).toHaveTextContent('Password must be at least 6 characters long');
+    });
+
+    // Verify requirements disappear on blur
+    fireEvent.blur(passwordInput);
+    await waitFor(() => {
+        expect(screen.queryByTestId('password-requirements')).not.toBeInTheDocument();
     });
   });
 
@@ -93,23 +98,24 @@ describe('Register Component', () => {
 
     const passwordInput = screen.getByPlaceholderText(/password/i);
     
-    // Type a short password
+    // Type a short password and trigger blur event
     fireEvent.change(passwordInput, { target: { value: '123' } });
     fireEvent.blur(passwordInput);
 
-    // Check for validation error using data-testid
+    // Check for validation error
     await waitFor(() => {
-      const errorMessage = screen.getByTestId('password-error');
-      expect(errorMessage).toBeInTheDocument();
+        const errorMessage = screen.getByTestId('password-error');
+        expect(errorMessage).toBeInTheDocument();
+        expect(errorMessage).toHaveTextContent('Password must be at least 6 characters');
     });
 
-    // Type a valid password
+    // Type a valid password and trigger blur event
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.blur(passwordInput);
 
     // Check that error message is gone
     await waitFor(() => {
-      expect(screen.queryByTestId('password-error')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('password-error')).not.toBeInTheDocument();
     });
   });
 });

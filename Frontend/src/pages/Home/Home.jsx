@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Parallax } from "react-parallax";
-import "./home.css";
+import "./Home.css";
 import backgroundImage from "./g7.jpg"; 
 import videoSrc from '../../assets/images/video2.mp4'; 
 import { SearchBar } from "../../components/SearchBar/SearchBar";

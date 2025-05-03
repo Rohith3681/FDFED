@@ -164,7 +164,8 @@
 .parallax {
   position: relative;
   height: 60vh;
-  background-image: url('../../assets/images/parallax-image.jpg');
+  /*background-image: url('../../assets/images/parallax-image.jpg');
+  */
   background-size: cover;
   background-position: center;
   background-attachment: fixed;

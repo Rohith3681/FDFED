@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import Display from '../../shared/Display';
+import Display from './Display';
 import "./Profile.css";
 
 const Profile = () => {

@@ -1,3 +1,5 @@
+@import './Book.css';
+
 .tours-container {
   padding: 3rem 2rem;
   max-width: 1400px;
@@ -45,4 +47,72 @@
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.book-card {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.book-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.book-image-container {
+    position: relative;
+    width: 200px;
+    height: 300px;
+}
+
+.book-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.loading {
+    opacity: 0.5;
+}
+
+.image-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: #f8f8f8;
+    color: #666;
+}
+
+.sale-price {
+    color: #ff0000;
+    margin-right: 10px;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #666;
+}
+
+.add-to-cart-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #0056b3;
+}
+
+.book-details {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f8f8;
+    border-radius: 4px;
 }

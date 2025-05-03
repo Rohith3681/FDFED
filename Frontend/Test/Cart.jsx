@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import CartCard from '../../components/Cartcard/Cartcard';
+import CartCard from './CartCard'; // Updated import path
 import styles from './Cart.module.css';
 
 const Cart = () => {

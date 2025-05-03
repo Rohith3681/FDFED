@@ -315,8 +315,8 @@ app.post("/login", async (req, res) => {
 
 app.post('/book', isAuthenticated, async (req, res) => {
     try {
-        const username = req.cookies.userName;  
-        const { tourId, name, phone, startDate, endDate, adults, children = 0 } = req.body;  
+        const username = req.cookies.userName;
+        const { tourId, name, phone, startDate, endDate, adults, children = 0 } = req.body;
 
         if (!username || !tourId || !name || !phone || !startDate || !endDate || !adults) {
             return res.status(400).json({ message: 'Please fill all required fields' });
@@ -326,16 +326,16 @@ app.post('/book', isAuthenticated, async (req, res) => {
         if (!tour) {
             return res.status(404).json({ message: 'Tour not found' });
         }
-        console.log(adults, children);
+
         const totalCost = (tour.price * adults) + (tour.price * children);
-        const adminShare = totalCost * 0.1;
-        const employeeShare = totalCost * 0.9;  
+        const adminShare = parseFloat((totalCost * 0.1).toFixed(2));
+        const employeeShare = parseFloat((totalCost * 0.9).toFixed(2));
 
         const newBooking = new Booking({
             name,
             phone,
-            startDate,
-            endDate,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
             adults,
             children,
             tour: tourId,
@@ -356,11 +356,9 @@ app.post('/book', isAuthenticated, async (req, res) => {
 
         await Tour.findByIdAndUpdate(
             tourId,
-            { 
-                $push: { bookedBy: user._id },
-                $inc: { revenue: totalCost } 
-            },
-            { new: true }
+            {
+                $push: { bookedBy: user._id }
+            }
         );
 
         const admins = await Admin.find();
@@ -369,9 +367,12 @@ app.post('/book', isAuthenticated, async (req, res) => {
         }
 
         await Admin.updateMany({}, { $inc: { revenue: adminShare } });
-        console.log(tour.creator);
-        if (tour.creator) {
-            await User.findByIdAndUpdate(tour.creator._id, { $inc: { revenue: employeeShare } });
+
+        if (tour.creator && tour.creator._id) {
+            await User.findByIdAndUpdate(
+                tour.creator._id,
+                { $inc: { revenue: employeeShare } }
+            );
         }
 
         res.status(201).json({ message: 'Booking successful', booking: savedBooking });
@@ -380,6 +381,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 app.get('/admin/recent-bookings', isAdmin, async (req, res) => {
     try {
@@ -485,37 +487,41 @@ app.put( '/updateTours/:id', isAdmin, async(req, res) => {
 // Logout endpoint
 app.post("/logout", async (req, res) => {
     try {
-        const name = req.cookies.userName;
-        
-        // Find and update user's login status
+        const name = req.cookies?.userName;
+
+        if (!name) {
+            return res.status(400).json({ message: "No user cookie found" });
+        }
+
         const user = await User.findOne({ name });
         if (user) {
             user.isLoggedIn = false;
             await user.save();
         }
 
-        // Get all tours to clear their individual caches
         const tours = await Tour.find({}, '_id');
-        
-        // Clear all tour-related caches
-        for (const tour of tours) {
-            await redisClient.del(`tour:${tour._id}`);
-        }
-        
-        // Clear main tours cache and user cache
-        await redisClient.del(`user:${name}`);
-        await redisClient.del('tours');
-        
+
+        // Prepare cache keys
+        const cacheKeys = [
+            ...tours.map(t => `tour:${t._id}`),
+            `user:${name}`,
+            'tours'
+        ];
+
+        // Delete all keys concurrently
+        await Promise.all(cacheKeys.map(key => redisClient.del(key)));
+
         // Clear cookies
         res.clearCookie('userName');
         res.clearCookie('userRole');
-        
+
         res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
         console.error("Error during logout:", error);
         res.status(500).json({ message: "Error during logout" });
     }
 });
+
 
 app.delete("/cancel/:id", async (req, res) => {
     console.log(req.params);  
@@ -633,7 +639,7 @@ app.get('/users', isAdmin, async (req, res) => {
     }
   });
 
-app.get('/tours', async (req, res) => {
+  app.get('/tours', async (req, res) => {
     const startTime = Date.now();
     try {
         // Try to get tours from cache first
@@ -829,19 +835,48 @@ app.post('/adminLogin', async (req, res) => {
     }
 });
 
-app.post('/create', upload.single('image'), async (req, res) => {
+app.post('/create', isAuthenticated, upload.single('image'), async (req, res) => {
+    const username = req.cookies.userName;
+    const {
+        title,
+        city,
+        address,
+        distance,
+        price,
+        desc,
+    } = req.body;
+
     try {
-        const { id } = req.params;
-        const { review } = req.body;
-        const tour = await Tour.findById(id);
-        if (!tour) {
-            return res.status(404).json({ message: 'Tour not found' });
+        const user = await User.findOne({ name: username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-        tour.reviews.push(review);
-        await tour.save();
-        res.status(200).json({ message: 'Review added successfully', tour });
+
+        const imagePath = `uploads/${req.file.filename}`;
+        const newTour = new Tour({
+            title,
+            city,
+            address,
+            distance,
+            price,
+            desc,
+            creator: user._id,
+            image: imagePath,
+            count: 0,
+            bookedBy: []  // Initially, no one has booked the tour
+        });
+
+        await newTour.save();
+
+        if (user.role === 'employee') {
+            user.booking.push(newTour._id);
+            await user.save();
+        }
+
+        res.status(201).json({ message: 'Tour created successfully', tour: newTour });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to add review' });
+        console.error('Error creating tour:', error);
+        res.status(500).json({ message: 'Error creating tour' });
     }
 });
 

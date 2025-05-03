@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-mongoose.connect("mongodb://mongo:27017/tours")
+mongoose.connect("mongodb://localhost:27017/")
 .then(() => {
     console.log("Mongodb Connected")
 })

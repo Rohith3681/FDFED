@@ -13,7 +13,26 @@ export const Register = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [passwordError, setPasswordError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
     const navigate = useNavigate();
+
+    const validateEmail = () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setEmailError('Please enter a valid email address');
+        } else {
+            setEmailError('');
+        }
+    };
+
+    const validatePassword = () => {
+        if (password.length < 6) {
+            setPasswordError('Password must be at least 6 characters');
+        } else {
+            setPasswordError('');
+        }
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -93,14 +112,20 @@ export const Register = () => {
 
                     <div className="mb-4">
                         <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)} // Email input
-                            placeholder="Email"
                             className="input-field"
+                            id="email"
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onBlur={validateEmail}
                             required
                         />
+                        {emailError && (
+                            <p className="text-red-500 text-sm mt-1" data-testid="email-error">
+                                Please enter a valid email address
+                            </p>
+                        )}
                     </div>
 
                     <div className="mb-4">
@@ -109,17 +134,27 @@ export const Register = () => {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            onFocus={() => setShowPasswordRequirements(true)}
+                            onBlur={(e) => {
+                                validatePassword();
+                                setShowPasswordRequirements(false);
+                            }}
                             placeholder="Password"
                             className="input-field"
                             required
                         />
+                        {showPasswordRequirements && (
+                            <p className="text-gray-600 text-sm mt-1" data-testid="password-requirements">
+                                Password must be at least 6 characters long
+                            </p>
+                        )}
                         {passwordError && (
-                            <span 
-                                className="error-message" 
+                            <p 
+                                className="text-red-500 text-sm mt-1" 
                                 data-testid="password-error"
                             >
-                                Password must be at least 6 characters
-                            </span>
+                                {passwordError}
+                            </p>
                         )}
                     </div>
 
