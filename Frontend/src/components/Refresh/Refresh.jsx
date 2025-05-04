@@ -11,7 +11,7 @@ const Refresh = () => {
       dispatch(setLoading(true)); // Set loading to true before fetching
 
       try {
-        const response = await fetch('http://localhost:8000/refresh', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/refresh`, {
           credentials: 'include', // Ensures cookies are sent with the request
         });
 

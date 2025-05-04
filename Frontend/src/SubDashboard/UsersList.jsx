@@ -13,7 +13,7 @@ const UsersList = () => {
     // Fetch users from the backend
     const fetchUsers = async () => {
         try {
-            const res = await fetch('http://localhost:8000/api/users', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users`, {
                 credentials: 'include', // Include credentials (cookies, etc.)
             });
             const data = await res.json();
@@ -26,7 +26,7 @@ const UsersList = () => {
     // Handle user deletion
     const handleDelete = async (id) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/users/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${id}`, {
                 method: 'DELETE',
                 credentials: 'include', // Include credentials (cookies, etc.)
             });
@@ -41,17 +41,10 @@ const UsersList = () => {
         }
     };
 
-    // Handle edit mode initiation
-    const handleEdit = (id) => {
-        const user = users.find(user => user._id === id);
-        setEditMode(id); // Set user in edit mode
-        setEditUserData({ name: user.name, email: user.email }); // Pre-fill form with user's name and email
-    };
-
     // Handle user update
     const handleUpdate = async (id) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/users/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editUserData),

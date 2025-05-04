@@ -12,7 +12,7 @@ const Profile = () => {
     const fetchUserAndBookings = async () => {
       if (username) {
         try {
-          const response = await fetch('http://localhost:8000/user/profile', {
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/user/profile`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -40,7 +40,7 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/cancel/${bookingId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/cancel/${bookingId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

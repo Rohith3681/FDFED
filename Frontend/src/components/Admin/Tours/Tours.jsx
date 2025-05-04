@@ -13,7 +13,7 @@ const Tours = ({role}) => {
     
     const fetchTours = async () => {
       try {
-        const response = await fetch('http://localhost:8000/tours', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/tours`, {
           credentials: 'include',
           signal: controller.signal
         });
@@ -40,7 +40,7 @@ const Tours = ({role}) => {
     if (!window.confirm("Are you sure you want to delete this tour?")) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/tours/delete/${tourId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/tours/delete/${tourId}`, {
         method: 'DELETE',
         credentials: 'include',
       });

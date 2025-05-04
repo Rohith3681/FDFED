@@ -10,7 +10,7 @@ const CartCard = ({ tour }) => {
 
   const handleRemove = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/cart/remove/${tour._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/cart/remove/${tour._id}`, {
         method: 'DELETE',
         credentials: 'include',
       });

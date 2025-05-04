@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   const handleLogout = async () => {
     try {
         // Call the backend API to log out the admin
-        const response = await fetch('http://localhost:8000/adminLogout', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/adminLogout`, {
             method: 'POST',
             credentials: 'include', // Ensure cookies are sent
         });

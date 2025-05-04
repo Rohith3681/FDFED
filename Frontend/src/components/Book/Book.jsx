@@ -11,7 +11,7 @@ const Book = () => {
     useEffect(() => {
         const fetchTours = async () => {
             try {
-                const response = await fetch('http://localhost:8000/tours', {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/tours`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

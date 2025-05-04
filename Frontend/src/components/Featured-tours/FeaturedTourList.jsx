@@ -9,7 +9,7 @@ const FeaturedTourList = () => {
     useEffect(() => {
         const fetchTours = async () => {
             try {
-                const response = await fetch('http://localhost:8000/tours', {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/tours`, {
                     credentials: 'include', // Include credentials in the request
                 });
 

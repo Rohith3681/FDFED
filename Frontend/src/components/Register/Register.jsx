@@ -56,7 +56,7 @@ export const Register = () => {
         };
 
         try {
-            const res = await fetch('http://localhost:8000/register', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

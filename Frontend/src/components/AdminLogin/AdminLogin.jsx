@@ -16,7 +16,7 @@ const Admin = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/adminLogin', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/adminLogin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

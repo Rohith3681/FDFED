@@ -13,7 +13,7 @@ const EmployeesList = () => {
     // Fetch employees from the backend
     const fetchEmployees = async () => {
         try {
-            const res = await fetch('http://localhost:8000/api/users', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users`, {
                 credentials: 'include', // Include credentials (cookies, authorization headers, etc.)
             });
             const data = await res.json();
@@ -27,7 +27,7 @@ const EmployeesList = () => {
     // Handle employee deletion
     const handleDelete = async (id) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/users/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${id}`, {
                 method: 'DELETE',
                 credentials: 'include', // Include credentials (cookies, authorization headers, etc.)
             });
@@ -52,7 +52,7 @@ const EmployeesList = () => {
     // Handle employee update
     const handleUpdate = async (id) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/users/${id}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editEmployeeData),

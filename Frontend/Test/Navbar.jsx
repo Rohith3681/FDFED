@@ -10,7 +10,7 @@ export const Navbar = () => {
 
     const handleLogout = async () => {
         try {
-            const res = await fetch('http://localhost:8000/logout', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -11,9 +11,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchEmployeeTours = async () => {
+     const fetchEmployeeTours = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/dashboard`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/dashboard`, {
           method: 'GET',
           credentials: 'include',
         });

@@ -10,7 +10,7 @@ const AddAdmin = () => {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:8000/adminSignup', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/adminSignup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

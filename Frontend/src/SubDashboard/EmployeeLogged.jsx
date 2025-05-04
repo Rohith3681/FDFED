@@ -8,7 +8,7 @@ const EmployeeLogged = () => {
     useEffect(() => {
         const fetchCounts = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/user-employee-counts', {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user-employee-counts`, {
                     credentials: 'include', // Include credentials (cookies)
                 });
                 const data = await response.json();
@@ -17,7 +17,7 @@ const EmployeeLogged = () => {
                 setEmployeeData((prevData) => [...prevData.slice(-9), { time: timeLabel, loggedInEmployees: data.loggedInEmployees }]);
 
                 // Fetch employee names
-                const namesResponse = await fetch('http://localhost:8000/api/loggedin-names', {
+                const namesResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/loggedin-names`, {
                     credentials: 'include', // Include credentials (cookies)
                 });
                 const namesData = await namesResponse.json();

@@ -11,7 +11,7 @@ const Customers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:8000/users', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
           credentials: 'include', // Include credentials in the request
         });
         if (!response.ok) {

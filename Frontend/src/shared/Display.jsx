@@ -15,7 +15,7 @@ const Display = ({ tour, showReviewButton, showBookButton, showUpdateButton, sho
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/tours/${_id}`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/tours/${_id}`, {
           method: 'GET',
           credentials: 'include', // Include credentials (cookies)
         });
@@ -38,7 +38,7 @@ const Display = ({ tour, showReviewButton, showBookButton, showUpdateButton, sho
 
   const handleReview = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/tours/${_id}/review`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/tours/${_id}/review`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const Display = ({ tour, showReviewButton, showBookButton, showUpdateButton, sho
     console.log(_id)
     try {
       // Send the tour ID to the backend to add it to the user's cart
-      const response = await fetch('http://localhost:8000/addToCart', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/addToCart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

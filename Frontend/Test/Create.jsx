@@ -92,7 +92,7 @@ const Create = () => {
     formDataToSend.append('maxGroupSize', formData.maxGroupSize);
 
     try {
-      const response = await fetch('http://localhost:8000/create', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create`, {
         method: 'POST',
         body: formDataToSend,
         credentials: 'include',
