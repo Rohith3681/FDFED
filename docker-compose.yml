@@ -2,12 +2,12 @@ services:
   backend:
     build: ./Backend
     ports:
-      - "5000:5000"
+      - "8000:8000"
     environment:
-      - MONGO_URL=mongodb://mongo:27017/tours
-      - REDIS_URL=mongodb://mongo:27017/tours
-      - REDIS_HOST=redis
+      - MONGODB_URL=mongodb+srv://rohithyadavm22:SHqXRdzu13o7BkQP@cluster0.knztryo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - REDIS_HOST=redis-12264.c276.us-east-1-2.ec2.redns.redis-cloud.com
       - REDIS_PORT=12264
+      - REDIS_USERNAME=default
       - REDIS_PASSWORD=niLrzCcf7F72YyAcfQpbLrRBavFieUPE
     depends_on:
       - mongo
@@ -17,7 +17,7 @@ services:
   frontend:
     build: ./Frontend
     ports:
-      - "3000:80"
+      - "5173:80"
     depends_on:
       - backend
 
@@ -30,7 +30,7 @@ services:
       - mongo-data:/data/db
 
   redis:
-    image: redis:alpine
+    image: redis
     ports:
       - "6379:6379"
     volumes:

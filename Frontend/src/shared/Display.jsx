@@ -91,7 +91,12 @@ const Display = ({ tour, showReviewButton, showBookButton, showUpdateButton, sho
   return (
     <div className="tour-card">
       <Card className="card1">
-        <CardImg top src={`../../${image}`} alt={title} className="tour-image-small" />
+        <CardImg 
+          top 
+          src={image} // Remove the '../../' prefix since we're using base64
+          alt={title} 
+          className="tour-image-small" 
+        />
         <CardBody>
           <div className="card-top d-flex align-items-center justify-content-between">
             <span className="tour-location d-flex align-items-center gap-1">

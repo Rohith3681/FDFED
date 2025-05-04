@@ -20,6 +20,15 @@ const Create = () => {
   const [maxGroupSize, setMaxGroupSize] = useState('');
   const navigate = useNavigate();
 
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
+  };
+
   const validateInputs = () => {
     const newErrors = {};
 
@@ -53,35 +62,47 @@ const Create = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = async (e) => {
+    const { name, value, files } = e.target;
+    
     switch (name) {
-      case 'title':
-        setTitle(value);
-        break;
-      case 'city':
-        setCity(value);
-        break;
-      case 'address':
-        setAddress(value);
-        break;
-      case 'distance':
-        setDistance(value);
-        break;
-      case 'price':
-        setPrice(value);
-        break;
-      case 'desc':
-        setDesc(value);
-        break;
-      case 'image':
-        setImage(e.target.files[0]);
-        break;
-      case 'maxGroupSize':
-        setMaxGroupSize(value);
-        break;
-      default:
-        break;
+        case 'image':
+            try {
+                const file = files[0];
+                if (file) {
+                    const base64String = await convertToBase64(file);
+                    console.log('Base64 string starts with:', base64String.substring(0, 50)); // Debug
+                    setImage(base64String);
+                    setErrors(prev => ({ ...prev, image: '' }));
+                }
+            } catch (error) {
+                console.error('Error converting image:', error);
+                setErrors(prev => ({ ...prev, image: 'Error processing image' }));
+            }
+            break;
+        case 'title':
+            setTitle(value);
+            break;
+        case 'city':
+            setCity(value);
+            break;
+        case 'address':
+            setAddress(value);
+            break;
+        case 'distance':
+            setDistance(value);
+            break;
+        case 'price':
+            setPrice(value);
+            break;
+        case 'desc':
+            setDesc(value);
+            break;
+        case 'maxGroupSize':
+            setMaxGroupSize(value);
+            break;
+        default:
+            break;
     }
     // Clear errors for the current field
     setErrors((prev) => ({ ...prev, [name]: '' }));
@@ -92,24 +113,25 @@ const Create = () => {
     if (!validateInputs()) return;
     setLoading(true);
     
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('city', city);
-    formData.append('address', address);
-    formData.append('distance', distance);
-    formData.append('price', price);
-    formData.append('desc', desc);
-    formData.append('username', username); // Keep username in formData
-    if (image) {
-      formData.append('image', image);
-    }
-    formData.append('maxGroupSize', maxGroupSize);
-  
     try {
+      const tourData = {
+        title: title.trim(),
+        city: city.trim(),
+        address: address.trim(),
+        distance: distance,
+        price: price,
+        desc: desc.trim(),
+        maxGroupSize: maxGroupSize,
+        image: image // Now this is the base64 string
+      };
+
       const response = await fetch('http://localhost:8000/create', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json'
+        },
         credentials: 'include',
+        body: JSON.stringify(tourData)
       });
 
       const result = await response.json();
@@ -260,7 +282,7 @@ const Create = () => {
                 accept="image/*"
               />
               <div className={styles.fileInputLabel}>
-                {image ? image.name : 'Choose an image'}
+                {image ? 'Image selected' : 'Choose an image'}
               </div>
             </div>
             {errors.image && <p className={styles.error}>{errors.image}</p>}

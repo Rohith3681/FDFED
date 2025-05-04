@@ -7,7 +7,6 @@ import User from "./models/User.js";
 import Tour from "./models/Tour.js";
 import Booking from "./models/Booking.js"
 import Admin from "./models/Admin.js";
-import multer from 'multer';
 import { getUserAndEmployeeCounts, getLoggedInNames } from './controllers/auth-controller.js';
 import userRoutes from './Routes/userRoutes.js';
 import cookieParser from "cookie-parser";
@@ -18,18 +17,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cookieParser());
+app.use(express.json({limit:'50mb'}));
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, '../Frontend/uploads/'); // Specify your uploads directory
-    },
-    filename: (req, file, cb) => {
-        const fileName = `${Date.now()}-${file.originalname.replace(/\\/g, '/')}`; // Ensure forward slashes in filename
-        cb(null, fileName);
-    }
-});
-
-const upload = multer({ storage });
 app.use(cors({
     origin: 'http://localhost:5173', // Your frontend origin
     credentials: true
@@ -39,7 +28,6 @@ app.use(express.json());
 const isAuthenticated = (req, res, next) => {
     const userName = req.cookies.userName;
     const userRole = req.cookies.userRole;
-    console.log(userName)
     if (userName && userRole) {
         next(); // Proceed to the next middleware or route handler
     } else {
@@ -609,7 +597,7 @@ app.get('/adminRevenue', isAdmin, async (req, res) => {
         const cachedRevenue = await redisClient.get(cacheKey);
         if (cachedRevenue) {
             const endTime = Date.now();
-            // console.log(`✅ Cache HIT for /adminRevenue - Time taken: ${endTime - startTime}ms`);
+            console.log(`✅ Cache HIT for /adminRevenue - Time taken: ${endTime - startTime}ms`);
             return res.json({ revenue: JSON.parse(cachedRevenue) });
         }
 
@@ -621,7 +609,7 @@ app.get('/adminRevenue', isAdmin, async (req, res) => {
         await redisClient.setEx(cacheKey, 3600, JSON.stringify(admin.revenue));
 
         const endTime = Date.now();
-        // console.log(`❌ Cache MISS for /adminRevenue - Time taken: ${endTime - startTime}ms`);
+        console.log(`❌ Cache MISS for /adminRevenue - Time taken: ${endTime - startTime}ms`);
         return res.json({ revenue: admin.revenue });
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -639,30 +627,27 @@ app.get('/users', isAdmin, async (req, res) => {
     }
   });
 
-  app.get('/tours', async (req, res) => {
+app.get('/tours', async (req, res) => {
     const startTime = Date.now();
     try {
-        // Try to get tours from cache first
         const cachedTours = await redisClient.get('tours');
         
         if (cachedTours) {
             const endTime = Date.now();
-            // console.log(`✅ Cache HIT for /tours - Time taken: ${endTime - startTime}ms`);
+            console.log(`✅ Cache HIT for /tours - Time taken: ${endTime - startTime}ms`);
             return res.json(JSON.parse(cachedTours));
         }
 
-        // If not in cache, get from database
         const tours = await Tour.find();
         const toursWithImagePath = tours.map(tour => ({
             ...tour._doc,
-            photo: `${tour.image}`
+            image: tour.image  // Use the base64 string directly
         }));
 
-        // Store in cache for 1 hour (3600 seconds)
         await redisClient.setEx('tours', 3600, JSON.stringify(toursWithImagePath));
         
         const endTime = Date.now();
-        // console.log(`❌ Cache MISS for /tours - Time taken: ${endTime - startTime}ms`);
+        console.log(`❌ Cache MISS for /tours - Time taken: ${endTime - startTime}ms`);
         res.json(toursWithImagePath);
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
@@ -674,28 +659,29 @@ app.get('/tours/:id', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Try to get tour from cache first
         const cachedTour = await redisClient.get(`tour:${id}`);
         
         if (cachedTour) {
             const endTime = Date.now();
-            // console.log(`✅ Cache HIT for /tours/${id} - Time taken: ${endTime - startTime}ms`);
             return res.json(JSON.parse(cachedTour));
         }
 
         const tour = await Tour.findById(id)
-            .populate('reviews');  // Populate reviews if needed
+            .populate('reviews');
             
         if (!tour) {
             return res.status(404).json({ message: "Tour not found" });
         }
 
-        // Store in cache for 1 hour (3600 seconds)
-        await redisClient.setEx(`tour:${id}`, 3600, JSON.stringify(tour));
+        const tourData = {
+            ...tour._doc,
+            image: tour.image  // Use the base64 string directly
+        };
+
+        await redisClient.setEx(`tour:${id}`, 3600, JSON.stringify(tourData));
         
         const endTime = Date.now();
-        // console.log(`❌ Cache MISS for /tours/${id} - Time taken: ${endTime - startTime}ms`);
-        res.json(tour);
+        res.json(tourData);
     } catch (error) {
         console.error("Error fetching tour:", error);
         res.status(500).json({ message: "Error fetching tour", error: error.message });
@@ -712,7 +698,7 @@ app.get('/tours/search/:location', async (req, res) => {
         
         if (cachedResults) {
             const endTime = Date.now();
-            // console.log(`✅ Cache HIT for search:${location} - Time taken: ${endTime - startTime}ms`);
+            console.log(`✅ Cache HIT for search:${location} - Time taken: ${endTime - startTime}ms`);
             return res.json(JSON.parse(cachedResults));
         }
 
@@ -727,7 +713,7 @@ app.get('/tours/search/:location', async (req, res) => {
         await redisClient.setEx(`search:${location}`, 300, JSON.stringify(tours));
         
         const endTime = Date.now();
-        // console.log(`❌ Cache MISS for search:${location} - Time taken: ${endTime - startTime}ms`);
+        console.log(`❌ Cache MISS for search:${location} - Time taken: ${endTime - startTime}ms`);
         res.json(tours);
     } catch (error) {
         res.status(500).json({ message: "Error searching tours", error: error.message });
@@ -743,7 +729,7 @@ app.get('/user/profile', isAuthenticated, async (req, res) => {
         const cachedProfile = await redisClient.get(cacheKey);
         if (cachedProfile) {
             const endTime = Date.now();
-            // console.log(`✅ Cache HIT for /user/profile - Time taken: ${endTime - startTime}ms`);
+            console.log(`✅ Cache HIT for /user/profile - Time taken: ${endTime - startTime}ms`);
             return res.json(JSON.parse(cachedProfile));
         }
 
@@ -779,7 +765,7 @@ app.get('/user/profile', isAuthenticated, async (req, res) => {
             await redisClient.setEx(cacheKey, 3600, JSON.stringify(profileData));
 
             const endTime = Date.now();
-            // console.log(`❌ Cache MISS for /user/profile - Time taken: ${endTime - startTime}ms`);
+            console.log(`❌ Cache MISS for /user/profile - Time taken: ${endTime - startTime}ms`);
             res.json(profileData);
         } else {
             res.status(404).json({ error: 'User not found' });
@@ -835,50 +821,85 @@ app.post('/adminLogin', async (req, res) => {
     }
 });
 
-app.post('/create', isAuthenticated, upload.single('image'), async (req, res) => {
+app.post('/create', isAuthenticated, async (req, res) => {
     const username = req.cookies.userName;
-    const {
-        title,
-        city,
-        address,
-        distance,
-        price,
-        desc,
-    } = req.body;
-
     try {
         const user = await User.findOne({ name: username });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
-        const imagePath = `uploads/${req.file.filename}`;
-        const newTour = new Tour({
+        
+        let {
             title,
             city,
             address,
             distance,
             price,
             desc,
+            image,
+            maxGroupSize
+        } = req.body;
+        
+        const validationErrors = {};
+        if (!title) validationErrors.title = 'Title is required';
+        if (!city) validationErrors.city = 'City is required';
+        if (!address) validationErrors.address = 'Address is required';
+        if (!distance || isNaN(distance)) validationErrors.distance = 'Distance must be a valid number';
+        if (!price || isNaN(price)) validationErrors.price = 'Price must be a valid number';
+        if (!desc) validationErrors.desc = 'Description is required';
+        if (!maxGroupSize || isNaN(maxGroupSize)) validationErrors.maxGroupSize = 'Max group size must be a valid number';
+        if (!image) {
+            validationErrors.image = 'Image is required';
+        } else {
+            const base64Pattern = /^data:image\/(png|jpeg|jpg|webp);base64,/;
+            if (!base64Pattern.test(image)) {
+                validationErrors.image = 'Invalid image format. Must be base64 string starting with data:image/';
+            }
+        }
+        
+        if (Object.keys(validationErrors).length > 0) {
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors: validationErrors
+            });
+        }
+        
+        const newTour = new Tour({
+            title: title.trim(),
+            city: city.trim(),
+            address: address.trim(),
+            distance: Number(distance),
+            price: Number(price),
+            desc: desc.trim(),
             creator: user._id,
-            image: imagePath,
+            image: image,
             count: 0,
-            bookedBy: []  // Initially, no one has booked the tour
+            bookedBy: [],
+            revenue: 0
         });
+        
 
         await newTour.save();
+        await redisClient.del('tours');
 
         if (user.role === 'employee') {
-            user.booking.push(newTour._id);
+            user.tour.push(newTour._id);
             await user.save();
         }
 
-        res.status(201).json({ message: 'Tour created successfully', tour: newTour });
+        res.status(201).json({
+            message: 'Tour created successfully',
+            tour: newTour
+        });
     } catch (error) {
         console.error('Error creating tour:', error);
-        res.status(500).json({ message: 'Error creating tour' });
+        res.status(500).json({
+            message: 'Error creating tour',
+            error: error.message
+        });
     }
 });
+
 
 app.get('/tours/search/:location', async (req, res) => {
     const { location } = req.params; // Use req.params to get the location
@@ -913,7 +934,6 @@ app.get('/tours/search/:location', async (req, res) => {
             ...tour.toObject(), // Convert tour to a plain object
             bookedByNames: tour.bookedBy.map(user => user.name) // Extract user names from bookedBy
         }));
-        console.log(user.revenue)
         res.status(200).json({
             username: user.name,
             revenue: user.revenue,
