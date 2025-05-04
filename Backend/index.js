@@ -261,14 +261,14 @@ app.post("/login", async (req, res) => {
         res.cookie('userName', user.name, {
             httpOnly: true, // Prevent JavaScript access to the cookie
             secure: true, // Set to true if using HTTPS
-            sameSite: 'none', // Restrict the cookie to same-site requests
+            sameSite: 'None', // Restrict the cookie to same-site requests
             path: '/'
         });
 
         res.cookie('userRole', rol, {
             httpOnly: true, // Prevent JavaScript access to the cookie
             secure: true, // Set to true if using HTTPS
-            sameSite: 'none', // Restrict the cookie to same-site requests
+            sameSite: 'None', // Restrict the cookie to same-site requests
             path: '/'
         });
 
@@ -500,9 +500,20 @@ app.post("/logout", async (req, res) => {
         // Delete all keys concurrently
         await Promise.all(cacheKeys.map(key => redisClient.del(key)));
 
-        // Clear cookies
-        res.clearCookie('userName');
-        res.clearCookie('userRole');
+        // Clear cookies with the SAME settings as when they were set
+        res.clearCookie('userName', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            path: '/'
+        });
+
+        res.clearCookie('userRole', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            path: '/'
+        });
 
         res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
@@ -548,16 +559,18 @@ app.post('/adminLogout', async (req, res) => {
         // Invalidate any cached data related to this admin
         await redisClient.del(`adminProfile:${userName}`);
 
-        // Clear the cookies
+        // Clear the cookies with the SAME settings as when they were set
         res.clearCookie('userName', {
             httpOnly: true,
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             path: '/'
         });
 
         res.clearCookie('userRole', {
             httpOnly: true,
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             path: '/'
         });
 
