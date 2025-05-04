@@ -261,13 +261,14 @@ app.post("/login", async (req, res) => {
         res.cookie('userName', user.name, {
             httpOnly: true, // Prevent JavaScript access to the cookie
             secure: true, // Set to true if using HTTPS
-            sameSite: 'none' // Restrict the cookie to same-site requests
+            sameSite: 'none', // Restrict the cookie to same-site requests
+            path: '/'
         });
 
         res.cookie('userRole', rol, {
-            httpOnly: false, // Prevent JavaScript access to the cookie
-            secure: false, // Set to true if using HTTPS
-            sameSite: 'lax', // Restrict the cookie to same-site requests
+            httpOnly: true, // Prevent JavaScript access to the cookie
+            secure: true, // Set to true if using HTTPS
+            sameSite: 'none', // Restrict the cookie to same-site requests
             path: '/'
         });
 
@@ -794,15 +795,15 @@ app.post('/adminLogin', async (req, res) => {
             // If credentials match, set cookies
             res.cookie('userName', existingAdmin.name, {
                 httpOnly: true, // Block JavaScript access to the cookie
-                secure: false,  // Set to true if using HTTPS
-                sameSite: 'lax', // Restrict to same-site requests
+                secure: true,  // Set to true if using HTTPS
+                sameSite: 'none', // Restrict to same-site requests
                 path: '/'        // Cookie will be sent for all paths
             });
 
             res.cookie('userRole', 5150, {
                 httpOnly: true, // Block JavaScript access to the cookie
-                secure: false,  // Set to true if using HTTPS
-                sameSite: 'lax', // Restrict to same-site requests
+                secure: true,  // Set to true if using HTTPS
+                sameSite: 'none', // Restrict to same-site requests
                 path: '/'        // Cookie will be sent for all paths
             });
 
