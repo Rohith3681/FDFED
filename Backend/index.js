@@ -24,6 +24,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.set('trust proxy', 1);
 
 const isAuthenticated = (req, res, next) => {
     const userName = req.cookies.userName;
