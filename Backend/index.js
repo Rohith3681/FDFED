@@ -261,8 +261,7 @@ app.post("/login", async (req, res) => {
         res.cookie('userName', user.name, {
             httpOnly: true, // Prevent JavaScript access to the cookie
             secure: true, // Set to true if using HTTPS
-            sameSite: 'none', // Restrict the cookie to same-site requests
-            path: '/'
+            sameSite: 'none' // Restrict the cookie to same-site requests
         });
 
         res.cookie('userRole', rol, {
