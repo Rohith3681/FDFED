@@ -22,11 +22,9 @@ jobs:
           Frontend/package-lock.json
           Backend/package-lock.json
 
-    - name: Generate Frontend Lock File
+    - name: Install Frontend Dependencies
       working-directory: Frontend
       run: |
-        rm -f package-lock.json
-        npm install --package-lock-only
         npm install
         npm install @babel/plugin-proposal-private-property-in-object --save-dev
 
@@ -35,11 +33,9 @@ jobs:
       run: |
         CI=false npm run build
 
-    - name: Generate Backend Lock File
+    - name: Install Backend Dependencies
       working-directory: Backend
       run: |
-        rm -f package-lock.json
-        npm install --package-lock-only
         npm install --legacy-peer-deps
         npm list
 
