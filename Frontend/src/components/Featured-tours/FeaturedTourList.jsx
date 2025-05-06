@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import TourCard from '../../shared/TourCard.jsx';
 import { Row, Col } from 'reactstrap';
 import styles from './FeaturedTourList.module.css';
-import Display from '../../shared/Display.jsx';
 
 const FeaturedTourList = () => {
     const [tours, setTours] = useState([]);
@@ -41,13 +40,7 @@ const FeaturedTourList = () => {
         <Row className={styles['card-container']}>
             {tours.map(tour => (
                 <Col lg='3' md='6' sm='12' className='mb-4' key={tour.id}>
-                    <Display
-                    tour={tour}
-                    showReviewButton={0}
-                    showBookButton={1}
-                    showUpdateButton={0}
-                    showDeleteButton={0}
-                  />
+                    <TourCard tour={tour} />
                 </Col>
             ))}
         </Row>

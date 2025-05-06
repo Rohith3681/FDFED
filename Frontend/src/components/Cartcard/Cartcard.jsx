@@ -28,7 +28,7 @@ const CartCard = ({ tour }) => {
 
   return (
     <div className={styles['cart-card']}>
-      <img src={image} alt={title} className={styles['tour-image']} />
+      <img src={`../../../${image}`} alt={title} className={styles['tour-image']} />
       <div className={styles['cart-card-details']}>
         <div className={styles['tour-info']}>
           <h3 className={styles['tour-title']}>{title}</h3>
