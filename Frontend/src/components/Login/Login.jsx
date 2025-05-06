@@ -31,7 +31,7 @@ export const Login = () => {
                 setPassword("");
 
                 // Dispatch login action with the user data
-                dispatch(login({ role: data.id, username: name }));
+                dispatch(login({ role: data.role, username: name }));
 
                 // Dispatch the cart data if available
                 if (data.cart && Array.isArray(data.cart)) {
