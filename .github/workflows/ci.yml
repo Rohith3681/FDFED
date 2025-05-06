@@ -18,12 +18,16 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
+        cache-dependency-path: |
+          Frontend/package-lock.json
+          Backend/package-lock.json
 
-    - name: Install Frontend Dependencies
+    - name: Generate Frontend Lock File
       working-directory: Frontend
       run: |
-        npm cache clean --force
-        npm install --verbose
+        rm -f package-lock.json
+        npm install --package-lock-only
+        npm install
         npm install @babel/plugin-proposal-private-property-in-object --save-dev
 
     - name: Build Frontend
@@ -31,11 +35,12 @@ jobs:
       run: |
         CI=false npm run build
 
-    - name: Install Backend Dependencies
+    - name: Generate Backend Lock File
       working-directory: Backend
       run: |
-        npm cache clean --force
-        npm install --verbose --legacy-peer-deps
+        rm -f package-lock.json
+        npm install --package-lock-only
+        npm install --legacy-peer-deps
         npm list
 
     # Optional: Only run tests if they are configured
