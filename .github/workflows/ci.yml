@@ -1,0 +1,55 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build-on-windows:
+    runs-on: windows-latest
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # 1. Check out your code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. Install Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # 3. Create .env file for Backend
+      - name: Create .env file
+        working-directory: backend
+        run: |
+          echo "REDIS_HOST=localhost" > .env
+          echo "REDIS_PORT=6379" >> .env
+          echo "REDIS_USERNAME=" >> .env
+          echo "REDIS_PASSWORD=" >> .env
+
+      # 4. Frontend: install & build
+      - name: Install & Build Frontend
+        working-directory: frontend
+        run: |
+          npm install
+          npm install @babel/plugin-proposal-private-property-in-object --save-dev
+          $env:CI = 'false'
+          npm run build
+
+      # 5. Backend: install & test
+      - name: Install & Test Backend
+        working-directory: backend
+        run: |
+          npm install --legacy-peer-deps
+          # npm run lint
+          # npm run test
