@@ -459,52 +459,64 @@ app.post('/register', async (req, res) => {
  *       500:
  *         description: Server error
  */
-app.post('/login', async(req, res) => {
+app.post("/login", async (req, res) => {
     try {
         const { name, password } = req.body;
         const user = await User.findOne({ name });
-        if (user && user.password === password) {
-            // Populate cart with tour details
-            let cartDetails = [];
-            if (user.role === "user" && Array.isArray(user.cart)) {
-                // Get the tour IDs directly from the cart items
-                const tourIds = user.cart.map(item => item.tour);
-                const tours = await Tour.find({ _id: { $in: tourIds } });
-                
-                cartDetails = user.cart.map(item => {
-                    const tour = tours.find(t => t._id.toString() === item.tour.toString());
-                    return {
-                        _id: item.tour, // Use the tour ID instead of cart item ID
-                        title: tour?.title || "",
-                        price: tour?.price || 0,
-                        image: tour?.image || "",
-                        quantity: item.quantity || 1
-                    };
-                });
-            }
 
-            res.cookie('userName', user.name, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'none'
-            });
-            res.cookie('userRole', user.id, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'none'
-            });
-            
-            res.status(200).json({ 
-                message: "Login successful", 
-                role: user.role,
-                cart: cartDetails 
-            });
-        } else {
-            res.status(401).json({ message: "Invalid credentials" });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
         }
+
+        if (user.password !== password) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        user.isLoggedIn = true;
+        await user.save();
+        const rol = user.role == "user" ? 2120 : 8180;
+        // Set cookies for name and role
+        res.cookie('userName', user.name, {
+            httpOnly: true, // Prevent JavaScript access to the cookie
+            secure: true, // Set to true if using HTTPS
+            sameSite: 'None', // Restrict the cookie to same-site requests
+            path: '/'
+        });
+
+        res.cookie('userRole', rol, {
+            httpOnly: true, // Prevent JavaScript access to the cookie
+            secure: true, // Set to true if using HTTPS
+            sameSite: 'None', // Restrict the cookie to same-site requests
+            path: '/'
+        });
+
+        
+        
+        let cartDetails = [];
+        if (user.role === "user" && Array.isArray(user.cart)) {
+            const tourIds = user.cart.map((item) => item._id);
+            const tours = await Tour.find({ _id: { $in: tourIds } }, "title price image");
+            cartDetails = user.cart.map((item) => {
+                const tour = tours.find((tour) => tour._id.toString() === item._id.toString());
+                return {
+                    _id: item._id,
+                    title: tour?.title || "",
+                    price: tour?.price || 0,
+                    image: `${tour?.image}` || "",
+                };
+            });
+        }
+
+        const responseData = {
+            message: "Login successful",
+            role: user.id,
+            cart: cartDetails,
+        };
+
+        res.status(200).json(responseData);
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Server error');
+        console.error(error);
+        res.status(500).send("Server error");
     }
 });
 
