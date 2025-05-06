@@ -1,54 +1,38 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    services:
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    runs-on: ubuntu-latest  # Explicitly specify Linux runner
 
     steps:
-      # 1. Check out your code
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
-      # 2. Install Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
 
-      # 3. Create .env file for Backend
-      - name: Create .env file
-        working-directory: backend
-        run: |
-          echo "REDIS_HOST=redis" > .env
-          echo "REDIS_PORT=6379" >> .env
-          echo "REDIS_USERNAME=" >> .env
-          echo "REDIS_PASSWORD=" >> .env
+    - name: Install Dependencies
+      run: |
+        cd Frontend
+        npm install
+        cd ../Backend
+        npm install
 
-      # 4. Frontend: install & build
-      - name: Install & Build Frontend
-        working-directory: frontend
-        run: |
-          npm install
-          npm install @babel/plugin-proposal-private-property-in-object --save-dev
-          CI=false npm run build
+    - name: Run Tests
+      run: |
+        cd Frontend
+        npm test
+        cd ../Backend
+        npm test
 
-      # 5. Backend: install & test
-      - name: Install & Test Backend
-        working-directory: backend
-        run: |
-          npm install --legacy-peer-deps
-          # npm run lint
-          # npm run test
+    - name: Build and Test Docker Images
+      run: |
+        docker build -f Frontend/Dockerfile -t test-frontend ./Frontend
+        docker build -f Backend/Dockerfile -t test-backend ./Backend
