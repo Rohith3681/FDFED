@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build-on-windows:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     services:
       redis:
@@ -43,8 +43,7 @@ jobs:
         run: |
           npm install
           npm install @babel/plugin-proposal-private-property-in-object --save-dev
-          $env:CI = 'false'
-          npm run build
+          CI=false npm run build
 
       # 5. Backend: install & test
       - name: Install & Test Backend
