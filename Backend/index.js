@@ -11,11 +11,59 @@ import { getUserAndEmployeeCounts, getLoggedInNames } from './controllers/auth-c
 import userRoutes from './Routes/userRoutes.js';
 import cookieParser from "cookie-parser";
 import redisClient from './config/redisClient.js';
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { updateUser,deleteUser } from './controllers/User-controller.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+  
 
 const app = express();
+const swaggerOptions = {
+    swaggerDefinition: {
+      openapi: "3.0.0",
+      info: {
+        title: "Pack Your Bags API",
+        version: "1.0.0",
+        description: "API documentation for Pack Your Bags tourism website",
+      },
+      components: {
+        securitySchemes: {
+          cookieAuth: {
+            type: "apiKey",
+            in: "cookie",
+            name: "userName",
+          },
+        },
+      },
+      security: [
+        {
+          cookieAuth: [],
+        },
+      ],
+      servers: [
+        {
+          url: "https://fdfed.onrender.com",
+        },
+      ],
+      tags: [
+        { name: "Auth", description: "User authentication and registration" },
+        { name: "Admin", description: "Admin management and stats" },
+        { name: "Tours", description: "Tour creation, review, search" },
+        { name: "Users", description: "User management and profile" },
+        { name: "Bookings", description: "Booking actions" },
+        { name: "Cart", description: "User cart operations" },
+        { name: "Dashboard", description: "Employee dashboard" },
+        { name: "Users and Employees", description: "Stats about users and employees" },
+      ],
+    },
+    apis: [path.join(__dirname, 'index.js')], 
+  };
+    
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.use(cookieParser());
 app.use(express.json({limit:'50mb'}));
 
@@ -97,6 +145,33 @@ app.get("/refresh", isAuthenticated, async (req, res) => {
     }
 });
 
+
+/**
+ * @swagger
+ * /addToCart:
+ *   post:
+ *     summary: Add a tour to the user's cart
+ *     tags: [Cart]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               tourId:
+ *                 type: string
+ *                 description: The ID of the tour to add
+ *     responses:
+ *       200:
+ *         description: Tour added to cart successfully
+ *       400:
+ *         description: Invalid user or not authorized
+ *       404:
+ *         description: Tour not found
+ *       500:
+ *         description: Server error
+ */
 app.post('/addToCart', isAuthenticated, async (req, res) => {
     try {
       const { tourId } = req.body;  // Expecting the tour ID in the request body
@@ -133,6 +208,28 @@ app.post('/addToCart', isAuthenticated, async (req, res) => {
     }
   });
   
+
+/**
+ * @swagger
+ * /cart/remove/{tourId}:
+ *   delete:
+ *     summary: Remove a tour from the user's cart
+ *     tags: [Cart]
+ *     parameters:
+ *       - in: path
+ *         name: tourId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the tour to remove
+ *     responses:
+ *       200:
+ *         description: Tour removed from cart successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
   app.delete('/cart/remove/:tourId', isAuthenticated, async (req, res) => {
     try {
         const { tourId } = req.params;
@@ -156,6 +253,29 @@ app.post('/addToCart', isAuthenticated, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /deleteTours/{id}:
+ *   delete:
+ *     summary: Delete a tour
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []  
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the tour to delete
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tour deleted successfully
+ *       404:
+ *         description: Tour not found
+ *       500:
+ *         description: Failed to delete tour
+ */
 app.delete("/tours/delete/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -193,7 +313,45 @@ app.delete("/tours/delete/:id", async (req, res) => {
 });
 
 
-
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register a new user or employee
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *                 description: Must include at least 8 characters, one letter, and one number
+ *               role:
+ *                 type: string
+ *                 enum: [user, employee]
+ *               employeeId:
+ *                 type: string
+ *                 description: Required only if role is 'employee'
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Invalid input (email, password, role, or ID)
+ *       500:
+ *         description: Server error
+ */
 app.post('/register', async (req, res) => {
     try {
         const { name, email, password, role, employeeId } = req.body;
@@ -240,7 +398,59 @@ app.post('/register', async (req, res) => {
     }
 });
 
-
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login a user or employee and set authentication cookies
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful with cookies set
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 role:
+ *                   type: string
+ *                 cart:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       price:
+ *                         type: number
+ *                       image:
+ *                         type: string
+ *       401:
+ *         description: Invalid credentials
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 app.post("/login", async (req, res) => {
     try {
         const { name, password } = req.body;
@@ -302,6 +512,76 @@ app.post("/login", async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /book:
+ *   post:
+ *     summary: Book a tour
+ *     tags: [Bookings]
+ *     security:
+ *       - cookieAuth: []  
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               tourId:
+ *                 type: string
+ *                 description: Tour ID to be booked
+ *               name:
+ *                 type: string
+ *                 description: User name
+ *               phone:
+ *                 type: string
+ *                 description: User phone number
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Tour start date
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Tour end date
+ *               adults:
+ *                 type: integer
+ *                 description: Number of adults
+ *               children:
+ *                 type: integer
+ *                 description: Number of children
+ *     responses:
+ *       201:
+ *         description: Booking successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 booking:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     startDate:
+ *                       type: string
+ *                       format: date
+ *                     endDate:
+ *                       type: string
+ *                       format: date
+ *                     cost:
+ *                       type: number
+ *       400:
+ *         description: Missing required fields
+ *       404:
+ *         description: Tour or user not found
+ *       500:
+ *         description: Error during booking
+ */
 app.post('/book', isAuthenticated, async (req, res) => {
     try {
         const username = req.cookies.userName;
@@ -371,7 +651,39 @@ app.post('/book', isAuthenticated, async (req, res) => {
     }
 });
 
-
+/**
+ * @swagger
+ * /admin/recent-bookings:
+ *   get:
+ *     summary: Get all bookings made in the last 3 months
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: List of recent bookings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 recentBookings:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       tour:
+ *                         type: object
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *       500:
+ *         description: Error fetching recent bookings
+ */
 app.get('/admin/recent-bookings', isAdmin, async (req, res) => {
     try {
         const threeMonthsAgo = new Date();
@@ -395,6 +707,35 @@ app.get('/admin/recent-bookings', isAdmin, async (req, res) => {
     }
 });
 
+
+/**
+ * @swagger
+ * /adminSignup:
+ *   post:
+ *     summary: Register a new admin account
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Admin created successfully
+ *       400:
+ *         description: Admin already exists or invalid input
+ *       500:
+ *         description: Internal server error
+ */
 app.post('/adminSignup', async (req, res) => {
     const { name, password } = req.body;
 
@@ -423,6 +764,29 @@ app.post('/adminSignup', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /deleteTours/{id}:
+ *   delete:
+ *     summary: Delete a tour
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []  
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the tour to delete
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tour deleted successfully
+ *       404:
+ *         description: Tour not found
+ *       500:
+ *         description: Failed to delete tour
+ */
 app.delete('/deleteTours/:id', isAdmin, async(req, res) => {
     try {
         const { id } = req.params;
@@ -437,7 +801,51 @@ app.delete('/deleteTours/:id', isAdmin, async(req, res) => {
     }
 });
 
-
+/**
+ * @swagger
+ * /tours/{id}/review:
+ *   post:
+ *     summary: Add a review to a specific tour
+ *     tags: [Tours]
+ *     security:
+ *       - cookieAuth: []  
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the tour to which the review will be added
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               review:
+ *                 type: string
+ *                 description: The review text for the tour
+ *     responses:
+ *       200:
+ *         description: Review added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 tour:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *       404:
+ *         description: Tour not found
+ *       500:
+ *         description: Failed to add review
+ */
 app.post('/tours/:id/review', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
@@ -459,6 +867,62 @@ app.post('/tours/:id/review', isAuthenticated, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /updateTours/{id}:
+ *   put:
+ *     summary: Update a tour
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []  
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID of the tour to update
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               distance:
+ *                 type: number
+ *               price:
+ *                 type: number
+ *               desc:
+ *                 type: string
+ *               image:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tour updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 updatedTour:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *       404:
+ *         description: Tour not found
+ *       500:
+ *         description: Failed to update tour
+ */
 app.put( '/updateTours/:id', isAdmin, async(req, res) => {
     try {
         const { id } = req.params;
@@ -473,7 +937,47 @@ app.put( '/updateTours/:id', isAdmin, async(req, res) => {
     }
 });
 
-// Logout endpoint
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     summary: Logout the currently authenticated user and clear cookies
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       description: Optional cart data to save for the user
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cart:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Logout successful, cookies cleared
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Logged out successfully
+ *                 resetCart:
+ *                   type: boolean
+ *       400:
+ *         description: No user is logged in
+ *       500:
+ *         description: Internal server error
+ */
 app.post("/logout", async (req, res) => {
     try {
         const name = req.cookies?.userName;
@@ -522,7 +1026,27 @@ app.post("/logout", async (req, res) => {
     }
 });
 
-
+/**
+ * @swagger
+ * /cancel/{id}:
+ *   delete:
+ *     summary: Cancel a booking by ID
+ *     tags: [Bookings]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the booking to cancel
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Booking canceled successfully and removed from user records
+ *       404:
+ *         description: Booking not found
+ *       500:
+ *         description: Error canceling booking
+ */
 app.delete("/cancel/:id", async (req, res) => {
     console.log(req.params);  
     try {
@@ -547,7 +1071,20 @@ app.delete("/cancel/:id", async (req, res) => {
 });
 
 
-
+/**
+ * @swagger
+ * /adminLogout:
+ *   post:
+ *     summary: Log out an admin by clearing cookies
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: Admin logged out successfully
+ *       400:
+ *         description: No admin is logged in
+ *       500:
+ *         description: Internal server error
+ */
 app.post('/adminLogout', async (req, res) => {
     const userName = req.cookies.userName;
 
@@ -582,7 +1119,31 @@ app.post('/adminLogout', async (req, res) => {
 });
 
 
-
+/**
+ * @swagger
+ * /tour-info:
+ *   get:
+ *     summary: Get the total number of tours and bookings
+ *     tags: [Tours]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the number of tours and bookings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalTours:
+ *                   type: integer
+ *                   description: The total number of tours
+ *                 totalBookings:
+ *                   type: integer
+ *                   description: The total number of bookings across all users
+ *       500:
+ *         description: Internal server error
+ */
 app.get('/tour-info', isAuthenticated, async (req, res) => {
     try {
         // Count the total number of tours
@@ -603,6 +1164,31 @@ app.get('/tour-info', isAuthenticated, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /adminRevenue:
+ *   get:
+ *     summary: Get the revenue of a specific admin
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the admin's revenue
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 revenue:
+ *                   type: number
+ *                   format: float
+ *                   description: The total revenue for the admin
+ *       404:
+ *         description: Admin not found
+ *       500:
+ *         description: Internal server error
+ */
 app.get('/adminRevenue', isAdmin, async (req, res) => {
     const startTime = Date.now();
     const cacheKey = 'adminRevenue:5150';
@@ -630,7 +1216,33 @@ app.get('/adminRevenue', isAdmin, async (req, res) => {
     }
 });
   
-
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get a list of users
+ *     tags: [Users]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: User ID
+ *                   name:
+ *                     type: string
+ *                     description: User name
+ *       500:
+ *         description: Server error
+ */
 app.get('/users', isAdmin, async (req, res) => {
     try {
       const users = await User.find({ id: '2120' }); // Fetch users with id = 2120
@@ -641,6 +1253,34 @@ app.get('/users', isAdmin, async (req, res) => {
     }
   });
 
+/**
+ * @swagger
+ * /tours:
+ *   get:
+ *     summary: Get all tours with updated image paths
+ *     tags: [Tours]
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved tours with updated image paths
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: Tour ID
+ *                   title:
+ *                     type: string
+ *                     description: Tour title
+ *                   photo:
+ *                     type: string
+ *                     description: Updated photo path
+ *       500:
+ *         description: Internal server error
+ */
 app.get('/tours', async (req, res) => {
     const startTime = Date.now();
     try {
@@ -702,6 +1342,38 @@ app.get('/tours/:id', isAuthenticated, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /tours/search/{location}:
+ *   get:
+ *     summary: Search for tours by location
+ *     tags: [Tours]
+ *     parameters:
+ *       - name: location
+ *         in: path
+ *         description: Location to search for tours
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of tours in the specified location
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *       500:
+ *         description: Error searching for tours
+ */
 app.get('/tours/search/:location', async (req, res) => {
     const startTime = Date.now();
     try {
@@ -734,6 +1406,73 @@ app.get('/tours/search/:location', async (req, res) => {
     }
 });
 
+
+/**
+ * @swagger
+ * /user/profile:
+ *   get:
+ *     summary: Get user profile including their bookings
+ *     tags: [Users]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user profile and categorized bookings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: string
+ *                   description: User's name
+ *                 completedBookings:
+ *                   type: array
+ *                   description: List of completed bookings
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       startDate:
+ *                         type: string
+ *                         format: date
+ *                       endDate:
+ *                         type: string
+ *                         format: date
+ *                 ongoingBookings:
+ *                   type: array
+ *                   description: List of ongoing bookings
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       startDate:
+ *                         type: string
+ *                         format: date
+ *                       endDate:
+ *                         type: string
+ *                         format: date
+ *                 upcomingBookings:
+ *                   type: array
+ *                   description: List of upcoming bookings
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       startDate:
+ *                         type: string
+ *                         format: date
+ *                       endDate:
+ *                         type: string
+ *                         format: date
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
 app.get('/user/profile', isAuthenticated, async (req, res) => {
     const startTime = Date.now();
     try {
@@ -791,7 +1530,44 @@ app.get('/user/profile', isAuthenticated, async (req, res) => {
 });
 
 
-
+/**
+ * @swagger
+ * /adminLogin:
+ *   post:
+ *     summary: Admin login
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Admin username
+ *               password:
+ *                 type: string
+ *                 description: Admin password
+ *     responses:
+ *       200:
+ *         description: Admin login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 id:
+ *                   type: string
+ *       400:
+ *         description: Missing username or password
+ *       401:
+ *         description: Invalid username or password
+ *       500:
+ *         description: Error processing the login request
+ */
 app.post('/adminLogin', async (req, res) => {
     const { name, password } = req.body;
 
@@ -835,6 +1611,63 @@ app.post('/adminLogin', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /create:
+ *   post:
+ *     summary: Create a new tour
+ *     tags: [Tours]
+ *     security:
+ *       - cookieAuth: []  
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Tour title
+ *               city:
+ *                 type: string
+ *                 description: City of the tour
+ *               address:
+ *                 type: string
+ *                 description: Address of the tour
+ *               distance:
+ *                 type: number
+ *                 description: Distance of the tour
+ *               price:
+ *                 type: number
+ *                 description: Price of the tour per person
+ *               desc:
+ *                 type: string
+ *                 description: Description of the tour
+ *     responses:
+ *       201:
+ *         description: Tour created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 tour:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *       400:
+ *         description: Bad request (missing required fields)
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Error creating tour
+ */
 app.post('/create', isAuthenticated, async (req, res) => {
     const username = req.cookies.userName;
     try {
@@ -914,7 +1747,38 @@ app.post('/create', isAuthenticated, async (req, res) => {
     }
 });
 
-
+/**
+ * @swagger
+ * /tours/search/{location}:
+ *   get:
+ *     summary: Search for tours by location
+ *     tags: [Tours]
+ *     parameters:
+ *       - name: location
+ *         in: path
+ *         description: Location to search for tours
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of tours in the specified location
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *       500:
+ *         description: Error searching for tours
+ */
 app.get('/tours/search/:location', async (req, res) => {
     const { location } = req.params; // Use req.params to get the location
   
@@ -928,7 +1792,44 @@ app.get('/tours/search/:location', async (req, res) => {
   
 
   
-  
+  /**
+ * @swagger
+ * /dashboard:
+ *   get:
+ *     summary: Get dashboard data for employees
+ *     tags: [Dashboard]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: Employee dashboard data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 username:
+ *                   type: string
+ *                 revenue:
+ *                   type: number
+ *                 tours:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       bookedByNames:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *       404:
+ *         description: User not found or not an employee
+ *       500:
+ *         description: Error fetching tours
+ */
   app.get('/dashboard', isAuthenticated, async (req, res) => {
       try {
           const username = req.cookies.userName;
@@ -958,6 +1859,7 @@ app.get('/tours/search/:location', async (req, res) => {
         res.status(500).json({ message: 'Error fetching tours' });
     }
 });
+
 
 app.get('/profile/:username', isAuthenticated, async (req, res) => {
     const startTime = Date.now();
@@ -1006,9 +1908,125 @@ app.get('/profile/:username', isAuthenticated, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /admin/user-employee-counts:
+ *   get:
+ *     summary: Get the number of logged-in users and employees
+ *     tags: [Users and Employees]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: Counts of logged-in users and employees
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 loggedInUsers:
+ *                   type: integer
+ *                   description: The count of logged-in users
+ *                 loggedInEmployees:
+ *                   type: integer
+ *                   description: The count of logged-in employees
+ *       500:
+ *         description: Error fetching user and employee counts
+ */
 app.get('/api/user-employee-counts',  isAdmin, getUserAndEmployeeCounts);
 
+
+/**
+ * @swagger
+ * /admin/logged-in-names:
+ *   get:
+ *     summary: Get the names of logged-in users and employees
+ *     tags: [Users and Employees]
+ *     security:
+ *       - cookieAuth: []  
+ *     responses:
+ *       200:
+ *         description: List of logged-in users and employees names
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 loggedInUsers:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of names of logged-in users
+ *                 loggedInEmployees:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of names of logged-in employees
+ *       500:
+ *         description: Error fetching logged-in names
+ */
 app.get('/api/loggedin-names',  isAdmin, getLoggedInNames);
+
+/**
+ * @swagger
+ * /admin/update-user/{id}:
+ *   put:
+ *     summary: Update a user by ID
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID of the user
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Error updating user
+ */
+app.put('/admin/update-user/:id', isAdmin, updateUser);
+
+/**
+ * @swagger
+ * /admin/delete-user/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID of the user
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Error deleting user
+ */
+app.delete('/admin/delete-user/:id', isAdmin, deleteUser);
 
 app.use('/api',  isAdmin, userRoutes);
 
@@ -1020,4 +2038,5 @@ app.use((err, req, res, next) => {
 
 app.listen(8000, () => {
     console.log("Server started on port 8000");
+    console.log("Swagger docs available at http://localhost:8000/api-docs");
 });
