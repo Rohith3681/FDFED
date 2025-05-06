@@ -17,10 +17,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: |
-          Frontend/package-lock.json
-          Backend/package-lock.json
 
     - name: Install Frontend Dependencies
       working-directory: Frontend
@@ -39,7 +35,6 @@ jobs:
         npm install --legacy-peer-deps
         npm list
 
-    # Optional: Only run tests if they are configured
     - name: Run Frontend Tests
       working-directory: Frontend
       continue-on-error: true
@@ -60,7 +55,6 @@ jobs:
           echo "No test script found in package.json"
         fi
 
-    # Only run Docker builds if Dockerfiles exist
     - name: Build Docker Images
       run: |
         if [ -f Frontend/Dockerfile ]; then
