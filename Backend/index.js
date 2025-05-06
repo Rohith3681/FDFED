@@ -234,19 +234,27 @@ app.post('/addToCart', isAuthenticated, async (req, res) => {
     try {
         const { tourId } = req.params;
         const name = req.cookies.userName;
-        const role = req.cookies.userRole;
-
+        
         const user = await User.findOne({ name: name });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Filter out the tour from the cart, ensuring that item.tour exists
-        user.cart = user.cart.filter((item) => item.tour && item.tour.toString() !== tourId);
+        // Find the index of the tour in the cart
+        const tourIndex = user.cart.findIndex(item => item._id.toString() === tourId);
+        
+        if (tourIndex === -1) {
+            return res.status(404).json({ message: 'Tour not found in cart' });
+        }
 
+        // Remove the tour from the cart array
+        user.cart.splice(tourIndex, 1);
         await user.save();
 
-        res.status(200).json({ message: 'Tour removed from cart successfully.' });
+        res.status(200).json({ 
+            message: 'Tour removed from cart successfully',
+            cart: user.cart
+        });
     } catch (error) {
         console.error('Error removing tour from cart:', error);
         res.status(500).json({ message: 'Server error' });
